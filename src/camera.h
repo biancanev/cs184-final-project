@@ -31,6 +31,8 @@ public:
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
+    glm::vec3 Target;
+    float OrbitDistance;
     // Euler Angles
     float Yaw;
     float Pitch;
@@ -56,6 +58,12 @@ public:
 
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset);
+
+    void SetOrbitTarget(glm::vec3 target);
+
+    void ProcessMouseMovementOrbit(float xoffset, float yoffset, bool constrainPitch = true);
+    
+    void ProcessMousePan(float xoffset, float yoffset);
 
 private:
     // Calculates the front vector from the Camera's (updated) Euler Angles

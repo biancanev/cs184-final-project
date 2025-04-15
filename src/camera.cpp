@@ -6,6 +6,8 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
+    Target = glm::vec3(0.0f, 0.0f, 0.0f);
+    OrbitDistance = glm::length(Position - Target); 
     updateCameraVectors();
 }
 
@@ -19,7 +21,12 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 }
 
 glm::mat4 Camera::GetViewMatrix() {
-    return glm::lookAt(Position, Position + Front, Up);
+    return glm::lookAt(Position, Target, Up);
+}
+
+void Camera::SetOrbitTarget(glm::vec3 target) {
+    Target = target;
+    OrbitDistance = glm::length(Position - Target);
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
@@ -51,8 +58,10 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
 
     // Update Front, Right and Up Vectors using the updated Euler angles
     updateCameraVectors();
+    
+    // Calculate new position based on orbit distance
+    Position = Target - Front * OrbitDistance;
 }
-
 void Camera::ProcessMouseScroll(float yoffset) {
     Zoom -= yoffset;
     if (Zoom < 1.0f)
@@ -68,7 +77,48 @@ void Camera::updateCameraVectors() {
     front.y = sin(glm::radians(Pitch));
     front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
     Front = glm::normalize(front);
+    
     // Also re-calculate the Right and Up vector
-    Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    Up    = glm::normalize(glm::cross(Right, Front));
+    Right = glm::normalize(glm::cross(Front, WorldUp));  
+    Up = glm::normalize(glm::cross(Right, Front));
+    
+    // Update Position to orbit around Target at the current OrbitDistance
+    Position = Target - Front * OrbitDistance;
+}
+
+void Camera::ProcessMouseMovementOrbit(float xoffset, float yoffset, bool constrainPitch) {
+    xoffset *= MouseSensitivity;
+    yoffset *= MouseSensitivity;
+
+    Yaw   += xoffset;
+    Pitch += yoffset;
+
+    // Make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (constrainPitch) {
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+    }
+
+    // Update Front, Right and Up Vectors using the updated Euler angles
+    updateCameraVectors();
+    
+    // Calculate new position based on orbit distance
+    Position = Target - Front * OrbitDistance;
+}
+
+void Camera::ProcessMousePan(float xoffset, float yoffset) {
+    xoffset *= MouseSensitivity * 0.05f; // Adjust sensitivity for panning
+    yoffset *= MouseSensitivity * 0.05f;
+    
+    // Move the target point (and consequently the camera) in the plane perpendicular to view direction
+    glm::vec3 panRight = Right * xoffset * OrbitDistance;
+    glm::vec3 panUp = Up * yoffset * OrbitDistance;
+    
+    Target -= panRight;
+    Target += panUp;
+    
+    // Update position based on new target
+    Position = Target - Front * OrbitDistance;
 }

@@ -18,6 +18,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+bool mouseButtonPressed = false;
 
 // Timing
 float deltaTime = 0.0f;
@@ -48,7 +49,26 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     lastX = xpos;
     lastY = ypos;
     
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    if (mouseButtonPressed) {
+        // Check if CTRL key is held for panning
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || 
+            glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) {
+            // Pan the camera
+            camera.ProcessMousePan(xoffset, yoffset);
+        } else {
+            // Orbit the camera
+            camera.ProcessMouseMovementOrbit(xoffset, yoffset);
+        }
+    }
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS)
+            mouseButtonPressed = true;
+        else if (action == GLFW_RELEASE)
+            mouseButtonPressed = false;
+    }
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -102,10 +122,10 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetScrollCallback(window, scroll_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    // Initialize GLEW - this is different from GLAD
     glewExperimental = GL_TRUE; // Needed for core profile
     if (glewInit() != GLEW_OK) {
         std::cout << "Failed to initialize GLEW" << std::endl;
@@ -121,9 +141,9 @@ int main() {
 
     // Load shaders
     Shader standardShader("shaders/standard.vert", "shaders/standard.frag");
-    Shader celShader("shaders/standard.vert", "shaders/cel.frag");
-    Shader watercolorShader("shaders/standard.vert", "shaders/watercolor.frag");
-    Shader sketchShader("shaders/standard.vert", "shaders/sketch.frag");
+    Shader celShader("shaders/standard.vert", "shaders/Cel.frag");
+    Shader watercolorShader("shaders/standard.vert", "shaders/Watercolor.frag");
+    Shader sketchShader("shaders/standard.vert", "shaders/Sketch.frag");
     
     shaders.push_back(standardShader);
     shaders.push_back(celShader);
@@ -132,6 +152,8 @@ int main() {
 
     // Load models
     Model ourModel;
+
+    camera.SetOrbitTarget(glm::vec3(0.0f, 0.0f, 0.0f)); 
 
     // Render loop
     while (!glfwWindowShouldClose(window)) {
