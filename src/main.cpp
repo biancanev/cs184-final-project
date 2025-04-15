@@ -140,10 +140,11 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     // Load shaders
-    Shader standardShader("shaders/standard.vert", "shaders/standard.frag");
-    Shader celShader("shaders/standard.vert", "shaders/Cel.frag");
-    Shader watercolorShader("shaders/standard.vert", "shaders/Watercolor.frag");
-    Shader sketchShader("shaders/standard.vert", "shaders/Sketch.frag");
+    std::cout << "Attempting to load shader from: shaders/standard.frag" << std::endl;
+    Shader standardShader("../shaders/standard.vert", "../shaders/standard.frag");
+    Shader celShader("../shaders/standard.vert", "../shaders/Cel.frag");
+    Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
+    Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
     
     shaders.push_back(standardShader);
     shaders.push_back(celShader);
@@ -194,6 +195,7 @@ int main() {
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         shaders[currentShader].setMat4("model", model);
+        shaders[currentShader].setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f)); 
         ourModel.Draw(shaders[currentShader]);
 
         // Swap buffers and poll events
