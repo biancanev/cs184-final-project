@@ -20,6 +20,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.cpp" "CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o.d"
   "/home/biancano/Documents/School/CS184/cs184-final-project/src/model.cpp" "CMakeFiles/NPR_Renderer.dir/src/model.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/src/model.cpp.o.d"
   "/home/biancano/Documents/School/CS184/cs184-final-project/src/shader.cpp" "CMakeFiles/NPR_Renderer.dir/src/shader.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/src/shader.cpp.o.d"
+  "/home/biancano/Documents/School/CS184/cs184-final-project/src/texture.cpp" "CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -12,8 +12,6 @@ find_package(GLEW REQUIRED)
 
 # Include directories
 include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-    #${CMAKE_SOURCE_DIR}/external
     ${OPENGL_INCLUDE_DIR}
     ${GLM_INCLUDE_DIRS}
     ${GLEW_INCLUDE_DIRS}
@@ -24,6 +22,8 @@ include_directories(
 
 # Source files
 file(GLOB SOURCES "src/*.cpp" "src/*.c")
+file(COPY ${CMAKE_SOURCE_DIR}/models DESTINATION ${CMAKE_BINARY_DIR})
+
 #list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/stb_image.cpp")
 
 # ImGui source files

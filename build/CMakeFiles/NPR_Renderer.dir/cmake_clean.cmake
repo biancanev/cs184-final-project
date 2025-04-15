@@ -23,6 +23,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/NPR_Renderer.dir/src/model.cpp.o.d"
   "CMakeFiles/NPR_Renderer.dir/src/shader.cpp.o"
   "CMakeFiles/NPR_Renderer.dir/src/shader.cpp.o.d"
+  "CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o"
+  "CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o.d"
   "NPR_Renderer"
   "NPR_Renderer.pdb"
 )

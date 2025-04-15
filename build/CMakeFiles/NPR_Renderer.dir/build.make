@@ -139,10 +139,24 @@ CMakeFiles/NPR_Renderer.dir/src/shader.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/NPR_Renderer.dir/src/shader.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/biancano/Documents/School/CS184/cs184-final-project/src/shader.cpp -o CMakeFiles/NPR_Renderer.dir/src/shader.cpp.s
 
+CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
+CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.cpp
+CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o -MF CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.cpp
+
+CMakeFiles/NPR_Renderer.dir/src/texture.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/NPR_Renderer.dir/src/texture.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.cpp > CMakeFiles/NPR_Renderer.dir/src/texture.cpp.i
+
+CMakeFiles/NPR_Renderer.dir/src/texture.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/NPR_Renderer.dir/src/texture.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.cpp -o CMakeFiles/NPR_Renderer.dir/src/texture.cpp.s
+
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui.cpp
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o -MF CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui.cpp
 
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.i: cmake_force
@@ -156,7 +170,7 @@ CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.s: cmake_force
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_demo.cpp
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o -MF CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_demo.cpp
 
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.i: cmake_force
@@ -170,7 +184,7 @@ CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.s: cmake_force
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_draw.cpp
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o -MF CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_draw.cpp
 
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.i: cmake_force
@@ -184,7 +198,7 @@ CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.s: cmake_force
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_tables.cpp
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o -MF CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_tables.cpp
 
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.i: cmake_force
@@ -198,7 +212,7 @@ CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.s: cmake_force
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_widgets.cpp
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o -MF CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_widgets.cpp
 
 CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.i: cmake_force
@@ -212,7 +226,7 @@ CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.s: cmake_force
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends/imgui_impl_glfw.cpp
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o -MF CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends/imgui_impl_glfw.cpp
 
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.i: cmake_force
@@ -226,7 +240,7 @@ CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.s: cmake
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o: CMakeFiles/NPR_Renderer.dir/flags.make
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends/imgui_impl_opengl3.cpp
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o: CMakeFiles/NPR_Renderer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o -MF CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o.d -o CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o -c /home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends/imgui_impl_opengl3.cpp
 
 CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.i: cmake_force
@@ -244,6 +258,7 @@ NPR_Renderer_OBJECTS = \
 "CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o" \
 "CMakeFiles/NPR_Renderer.dir/src/model.cpp.o" \
 "CMakeFiles/NPR_Renderer.dir/src/shader.cpp.o" \
+"CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o" \
 "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o" \
 "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o" \
 "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o" \
@@ -260,6 +275,7 @@ NPR_Renderer: CMakeFiles/NPR_Renderer.dir/src/main.cpp.o
 NPR_Renderer: CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o
 NPR_Renderer: CMakeFiles/NPR_Renderer.dir/src/model.cpp.o
 NPR_Renderer: CMakeFiles/NPR_Renderer.dir/src/shader.cpp.o
+NPR_Renderer: CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o
 NPR_Renderer: CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o
 NPR_Renderer: CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o
 NPR_Renderer: CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o
@@ -274,7 +290,7 @@ NPR_Renderer: /usr/lib/x86_64-linux-gnu/libglfw.so.3.3
 NPR_Renderer: /usr/lib/x86_64-linux-gnu/libassimp.so.5.3.0
 NPR_Renderer: /usr/lib/x86_64-linux-gnu/libGLEW.so
 NPR_Renderer: CMakeFiles/NPR_Renderer.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX executable NPR_Renderer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX executable NPR_Renderer"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/NPR_Renderer.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

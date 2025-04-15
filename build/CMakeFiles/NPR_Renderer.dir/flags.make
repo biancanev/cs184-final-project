@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/biancano/Documents/School/CS184/cs184-final-project/include -I/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui -I/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends
+CXX_INCLUDES = -I/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui -I/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends
 
 CXX_FLAGS = -std=gnu++17
 

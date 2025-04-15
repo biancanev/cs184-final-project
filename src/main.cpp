@@ -227,7 +227,7 @@ void renderImGui(Model& ourModel) {
         }
         
         ImGui::Separator();
-        ImGui::Checkbox("Show Demo Window", &showDemoWindow);
+        //ImGui::Checkbox("Show Demo Window", &showDemoWindow);
         
         ImGui::End();
     }
@@ -237,7 +237,12 @@ void renderImGui(Model& ourModel) {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-int main() {
+int main(int argc, char **argv) {
+    std::string modelPath = "../models/Baby_Groot_Funko_Pop.stl";
+    if (argc > 1) {
+        modelPath = argv[1];
+    }
+
     // Initialize GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
