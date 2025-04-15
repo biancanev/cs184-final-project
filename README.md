@@ -1,5 +1,10 @@
 # Non-Photorealistic Renderer
 
+## 0.0 Instaling dependencies
+
+### 0.1 MacOS/Linux
+Run the `install_dependencies.sh` script to install all necessary dependencies for building
+
 ## 1.0 GUI Controls
 | Hotkey | Function |
 | --- | --- |
