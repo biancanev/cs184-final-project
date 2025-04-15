@@ -8,6 +8,13 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends/imgui_impl_glfw.cpp" "CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_glfw.cpp.o.d"
+  "/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/backends/imgui_impl_opengl3.cpp" "CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/external/imgui/backends/imgui_impl_opengl3.cpp.o.d"
+  "/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui.cpp" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui.cpp.o.d"
+  "/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_demo.cpp" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_demo.cpp.o.d"
+  "/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_draw.cpp" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_draw.cpp.o.d"
+  "/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_tables.cpp" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_tables.cpp.o.d"
+  "/home/biancano/Documents/School/CS184/cs184-final-project/external/imgui/imgui_widgets.cpp" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/external/imgui/imgui_widgets.cpp.o.d"
   "/home/biancano/Documents/School/CS184/cs184-final-project/src/camera.cpp" "CMakeFiles/NPR_Renderer.dir/src/camera.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/src/camera.cpp.o.d"
   "/home/biancano/Documents/School/CS184/cs184-final-project/src/main.cpp" "CMakeFiles/NPR_Renderer.dir/src/main.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/src/main.cpp.o.d"
   "/home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.cpp" "CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o" "gcc" "CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o.d"

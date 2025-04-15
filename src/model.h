@@ -1,3 +1,4 @@
+// model.h
 #ifndef MODEL_H
 #define MODEL_H
 
@@ -19,8 +20,8 @@
 #include <map>
 #include <vector>
 
-// Forward declaration - we'll implement a simpler version without stb_image
-unsigned int TextureFromFile(const char *path, const std::string &directory);
+// Forward declaration
+unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
 class Model {
 public:
@@ -30,28 +31,29 @@ public:
     std::string directory;
     bool gammaCorrection;
 
-    // Constructor
+    // Constructor for loading model from file
     Model(const std::string &path, bool gamma = false);
     
-    // Simple constructor that loads a simple colored cube (no textures needed)
+    // Constructor for creating a default cube
     Model();
 
     // Draws the model, and thus all its meshes
     void Draw(Shader &shader);
     
 private:
-    // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+    // Loads a model with supported ASSIMP extensions from file
     void loadModel(const std::string &path);
 
-    // Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
+    // Processes a node in a recursive fashion
     void processNode(aiNode *node, const aiScene *scene);
 
+    // Process an individual mesh
     Mesh processMesh(aiMesh *mesh, const aiScene *scene);
 
-    // Checks all material textures of a given type and loads the textures if they're not loaded yet.
+    // Loads material textures
     std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
     
-    // For creating a simple cube without loading from file
+    // Creates a default cube for testing
     void createCube();
 };
 #endif

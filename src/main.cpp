@@ -3,11 +3,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+// ImGui includes
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
 
 #include <iostream>
+#include <string>
 
 // Settings
 const unsigned int SCR_WIDTH = 800;
@@ -19,6 +25,8 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 bool mouseButtonPressed = false;
+float rotationAngle = 0.0f;
+bool fixed_lighting = false;
 
 // Timing
 float deltaTime = 0.0f;
@@ -28,11 +36,29 @@ float lastFrame = 0.0f;
 int currentShader = 0;
 std::vector<Shader> shaders;
 
+// ImGui Variables
+bool showDemoWindow = false;
+bool showControlPanel = true;
+ImVec4 objectColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+float ambientStrength = 0.1f;
+float specularStrength = 0.5f;
+float shininess = 32.0f;
+float lightPosX = 1.2f;
+float lightPosY = 1.0f;
+float lightPosZ = 2.0f;
+std::string modelPath = "";
+bool modelLoaded = false;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+    // Skip camera movement if ImGui is capturing mouse
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+        return;
+        
     // Camera mouse control code
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
@@ -63,6 +89,10 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+        return;
+        
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (action == GLFW_PRESS)
             mouseButtonPressed = true;
@@ -72,6 +102,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
+        return;
+        
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
@@ -98,6 +132,109 @@ void processInput(GLFWwindow* window) {
         currentShader = 2; // Watercolor
     if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
         currentShader = 3; // Sketch
+}
+
+// Function to setup ImGui
+void setupImGui(GLFWwindow* window) {
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+// Function to load a 3D model
+bool loadModelFile(Model& model, const std::string& path) {
+    try {
+        model = Model(path);
+        std::cout << "Model loaded successfully: " << path << std::endl;
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to load model: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+// Function to render ImGui interface
+void renderImGui(Model& ourModel) {
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()!)
+    if (showDemoWindow)
+        ImGui::ShowDemoWindow(&showDemoWindow);
+
+    // 2. Show control panel
+    if (showControlPanel) {
+        ImGui::Begin("Control Panel", &showControlPanel);
+        
+        if (ImGui::CollapsingHeader("Model")) {
+            // Model loading
+            char inputBuffer[256] = "";
+            strncpy(inputBuffer, modelPath.c_str(), sizeof(inputBuffer) - 1);
+            
+            ImGui::Text("Enter model path:");
+            if (ImGui::InputText("##modelpath", inputBuffer, sizeof(inputBuffer))) {
+                modelPath = inputBuffer;
+            }
+            
+            if (ImGui::Button("Load Model")) {
+                if (!modelPath.empty()) {
+                    modelLoaded = loadModelFile(ourModel, modelPath);
+                }
+            }
+            
+            ImGui::SameLine();
+            
+            if (ImGui::Button("Load Default Cube")) {
+                ourModel = Model(); // Creates default cube
+                modelLoaded = true;
+            }
+        }
+        
+        if (ImGui::CollapsingHeader("Lighting")) {
+            // Light properties
+            ImGui::SliderFloat("Ambient Strength", &ambientStrength, 0.0f, 1.0f);
+            ImGui::SliderFloat("Specular Strength", &specularStrength, 0.0f, 1.0f);
+            ImGui::SliderFloat("Shininess", &shininess, 1.0f, 128.0f);
+            
+            ImGui::Checkbox("Fixed Lighting (Light follows camera)", &fixed_lighting);
+            
+            if (!fixed_lighting) {
+                ImGui::SliderFloat("Light Position X", &lightPosX, -10.0f, 10.0f);
+                ImGui::SliderFloat("Light Position Y", &lightPosY, -10.0f, 10.0f);
+                ImGui::SliderFloat("Light Position Z", &lightPosZ, -10.0f, 10.0f);
+            }
+        }
+        
+        if (ImGui::CollapsingHeader("Appearance")) {
+            // Color picker
+            ImGui::ColorEdit3("Object Color", (float*)&objectColor);
+            
+            // Shader selection
+            const char* shaderNames[] = { "Standard", "Cel", "Watercolor", "Sketch" };
+            ImGui::Combo("Shader", &currentShader, shaderNames, IM_ARRAYSIZE(shaderNames));
+        }
+        
+        ImGui::Separator();
+        ImGui::Checkbox("Show Demo Window", &showDemoWindow);
+        
+        ImGui::End();
+    }
+
+    // Render ImGui
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 int main() {
@@ -138,6 +275,9 @@ int main() {
 
     // Configure global OpenGL state
     glEnable(GL_DEPTH_TEST);
+
+    // Setup ImGui
+    setupImGui(window);
 
     // Load shaders
     std::cout << "Attempting to load shader from: shaders/standard.frag" << std::endl;
@@ -182,10 +322,19 @@ int main() {
         shaders[currentShader].setMat4("view", view);
 
         // Light properties
-        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+        glm::vec3 lightPos(lightPosX, lightPosY, lightPosZ);
+        if (fixed_lighting){
+            lightPos = camera.Position + camera.Front * 2.0f;
+        }
+        
         shaders[currentShader].setVec3("lightPos", lightPos);
         shaders[currentShader].setVec3("viewPos", camera.Position);
         shaders[currentShader].setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        
+        // Set custom lighting parameters from ImGui
+        shaders[currentShader].setFloat("ambientStrength", ambientStrength);
+        shaders[currentShader].setFloat("specularStrength", specularStrength);
+        shaders[currentShader].setFloat("shininess", shininess);
         
         // Optional: Pass time to shader for animation effects
         shaders[currentShader].setFloat("time", currentFrame);
@@ -195,13 +344,25 @@ int main() {
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         shaders[currentShader].setMat4("model", model);
-        shaders[currentShader].setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f)); 
+        
+        // Set object color from ImGui
+        shaders[currentShader].setVec3("objectColor", 
+            glm::vec3(objectColor.x, objectColor.y, objectColor.z));
+        
         ourModel.Draw(shaders[currentShader]);
-
+        
+        // Render ImGui interface
+        renderImGui(ourModel);
+        
         // Swap buffers and poll events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    // Cleanup ImGui
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     // Terminate GLFW
     glfwTerminate();
