@@ -10,10 +10,11 @@
 
 class Texture{
     public:
-        unsigned int ID;
+        unsigned int id;
+        std::string type;
         int width, height, channels;
         
-        Texture() : ID(0), width(0), height(0), channels(0) {}
+        Texture() : id(0), width(0), height(0), channels(0) {}
         
         bool loadTexture(const std::string& path);
 

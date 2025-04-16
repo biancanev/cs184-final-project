@@ -355,6 +355,7 @@ CMakeFiles/NPR_Renderer.dir/src/main.cpp.o: \
  /usr/include/assimp/material.inl /usr/include/assimp/anim.h \
  /usr/include/assimp/metadata.h /usr/include/assimp/postprocess.h \
  /home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.h \
+ /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.h \
  /usr/include/c++/13/map /usr/include/c++/13/bits/stl_tree.h \
  /usr/include/c++/13/ext/aligned_buffer.h \
  /usr/include/c++/13/bits/node_handle.h \

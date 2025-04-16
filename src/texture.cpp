@@ -28,8 +28,8 @@ bool Texture::loadTexture(const std::string& path){
     height = texture->mHeight;
     
     // Generate OpenGL texture
-    glGenTextures(1, &ID);
-    glBindTexture(GL_TEXTURE_2D, ID);
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
     
     // Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -57,7 +57,7 @@ bool Texture::loadTexture(const std::string& path){
 
 void Texture::bind(unsigned int slot) const{
     glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, ID);
+    glBindTexture(GL_TEXTURE_2D, id);
 }
 
 void Texture::unbind() const{
@@ -65,8 +65,8 @@ void Texture::unbind() const{
 }
 
 void Texture::cleanup(){
-    if (ID != 0) {
-        glDeleteTextures(1, &ID);
-        ID = 0;
+    if (id != 0) {
+        glDeleteTextures(1, &id);
+        id = 0;
     }
 }

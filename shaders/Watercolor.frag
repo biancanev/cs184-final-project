@@ -1,7 +1,14 @@
-#version 330
-uniform vec3 u_cam_pos;
-uniform vec3 u_light_pos;
-uniform vec3 u_light_intensity;
+#version 330 core
+out vec4 FragColor;
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoords;
+
+uniform vec3 lightPos;
+uniform vec3 viewPos;
+uniform vec3 lightColor;
+uniform vec3 objectColor;
 uniform sampler2D u_noise_texture;      // Noise texture for paper grain
 uniform sampler2D u_paper_texture;      // Optional actual paper texture
 
@@ -18,27 +25,22 @@ uniform float u_granulation = 0.7;         // Pigment separation amount
 uniform float u_edge_noise = 0.8;          // Noisy edge detail
 uniform float u_transparency = 0.85;       // Overall paint transparency
 
-in vec4 v_position;
-in vec4 v_normal;
-in vec2 v_uv;
-out vec4 out_color;
-
 void main() {
     // Get position and normal data
-    vec3 fragPos = v_position.xyz / v_position.w;
-    vec3 normal = normalize(v_normal.xyz);
-    vec3 viewDir = normalize(u_cam_pos - fragPos);
+    vec3 fragPos = FragPos;
+    vec3 normal = normalize(Normal);
+    vec3 viewDir = normalize(viewPos - fragPos);
     
     // Multi-layered noise for complex watercolor effects
-    vec2 noiseCoord1 = v_uv * 2.5;
-    vec2 noiseCoord2 = v_uv * 8.0;
-    vec2 noiseCoord3 = v_uv * 20.0;
+    vec2 noiseCoord1 = TexCoords * 2.5;
+    vec2 noiseCoord2 = TexCoords * 8.0;
+    vec2 noiseCoord3 = TexCoords * 20.0;
     float noise1 = texture(u_noise_texture, noiseCoord1).r;
     float noise2 = texture(u_noise_texture, noiseCoord2).r;
     float noise3 = texture(u_noise_texture, noiseCoord3).r;
     
     // Paper texture (either from actual texture or generated)
-    float paperTexture = texture(u_paper_texture, v_uv * 3.0).r;
+    float paperTexture = texture(u_paper_texture, TexCoords * 3.0).r;
     paperTexture = mix(0.8, 1.0, paperTexture);
     
     // CRITICAL: Edge detection for watercolor edge darkening
@@ -50,7 +52,7 @@ void main() {
     
     // Create watercolor color blending with visible paper texture
     float distortion = noise1 * 0.3;
-    vec2 blendUV = v_uv + vec2(noise2 - 0.5, noise1 - 0.5) * 0.12;
+    vec2 blendUV = TexCoords + vec2(noise2 - 0.5, noise1 - 0.5) * 0.12;
     
     // Main watercolor hue selection with true pigment separation
     float hueSelect = blendUV.x + blendUV.y * 0.7 + noise1 * 0.3;
@@ -65,8 +67,6 @@ void main() {
         color = mix(u_color3, u_color4, smoothstep(0.0, 0.5, (hueSelect - 0.66) / 0.33 + noise3 * 0.2));
     }
     
-    // CRITICAL: Pigment granulation - different colors separate differently
-    // This creates the characteristic watercolor granulation effect
     float redGranulation = noise3 * u_granulation * 0.6;
     float greenGranulation = noise2 * u_granulation * 0.5;
     float blueGranulation = noise1 * u_granulation * 0.7;
@@ -79,7 +79,7 @@ void main() {
     color = mix(color, vec3(paperTexture), u_paper_visibility * paperTexture);
     
     // Add simple lighting
-    vec3 lightDir = normalize(u_light_pos - fragPos);
+    vec3 lightDir = normalize(lightPos - fragPos);
     float diffuseFactor = max(dot(normal, lightDir), 0.0);
     float lightIntensity = 0.6 + 0.4 * diffuseFactor;
     
@@ -99,5 +99,5 @@ void main() {
     vec3 finalColor = color * lightIntensity;
     
     // Output with variable opacity
-    out_color = vec4(finalColor, opacity);
+    FragColor = vec4(finalColor, opacity);
 }

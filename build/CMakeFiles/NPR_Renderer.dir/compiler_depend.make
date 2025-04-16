@@ -1502,6 +1502,7 @@ CMakeFiles/NPR_Renderer.dir/src/main.cpp.o: /home/biancano/Documents/School/CS18
   /home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.h \
   /home/biancano/Documents/School/CS184/cs184-final-project/src/model.h \
   /home/biancano/Documents/School/CS184/cs184-final-project/src/shader.h \
+  /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glew.h \
   /usr/include/GL/glu.h \
@@ -1944,6 +1945,7 @@ CMakeFiles/NPR_Renderer.dir/src/main.cpp.o: /home/biancano/Documents/School/CS18
 CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o: /home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.cpp \
   /home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.h \
   /home/biancano/Documents/School/CS184/cs184-final-project/src/shader.h \
+  /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glew.h \
   /usr/include/GL/glu.h \
@@ -1952,8 +1954,40 @@ CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o: /home/biancano/Documents/School/CS18
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
   /usr/include/assert.h \
+  /usr/include/assimp/Compiler/poppack1.h \
+  /usr/include/assimp/Compiler/pushpack1.h \
+  /usr/include/assimp/Importer.hpp \
+  /usr/include/assimp/MathFunctions.h \
+  /usr/include/assimp/aabb.h \
+  /usr/include/assimp/anim.h \
+  /usr/include/assimp/camera.h \
+  /usr/include/assimp/color4.h \
+  /usr/include/assimp/color4.inl \
+  /usr/include/assimp/config.h \
+  /usr/include/assimp/defs.h \
+  /usr/include/assimp/light.h \
+  /usr/include/assimp/material.h \
+  /usr/include/assimp/material.inl \
+  /usr/include/assimp/matrix3x3.h \
+  /usr/include/assimp/matrix3x3.inl \
+  /usr/include/assimp/matrix4x4.h \
+  /usr/include/assimp/matrix4x4.inl \
+  /usr/include/assimp/mesh.h \
+  /usr/include/assimp/metadata.h \
+  /usr/include/assimp/postprocess.h \
+  /usr/include/assimp/quaternion.h \
+  /usr/include/assimp/quaternion.inl \
+  /usr/include/assimp/scene.h \
+  /usr/include/assimp/texture.h \
+  /usr/include/assimp/types.h \
+  /usr/include/assimp/vector2.h \
+  /usr/include/assimp/vector2.inl \
+  /usr/include/assimp/vector3.h \
+  /usr/include/assimp/vector3.inl \
+  /usr/include/c++/13/algorithm \
   /usr/include/c++/13/backward/binders.h \
   /usr/include/c++/13/bit \
+  /usr/include/c++/13/bits/algorithmfwd.h \
   /usr/include/c++/13/bits/alloc_traits.h \
   /usr/include/c++/13/bits/allocator.h \
   /usr/include/c++/13/bits/basic_ios.h \
@@ -1998,20 +2032,24 @@ CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o: /home/biancano/Documents/School/CS18
   /usr/include/c++/13/bits/specfun.h \
   /usr/include/c++/13/bits/sstream.tcc \
   /usr/include/c++/13/bits/std_abs.h \
+  /usr/include/c++/13/bits/stl_algo.h \
   /usr/include/c++/13/bits/stl_algobase.h \
   /usr/include/c++/13/bits/stl_bvector.h \
   /usr/include/c++/13/bits/stl_construct.h \
   /usr/include/c++/13/bits/stl_function.h \
+  /usr/include/c++/13/bits/stl_heap.h \
   /usr/include/c++/13/bits/stl_iterator.h \
   /usr/include/c++/13/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/13/bits/stl_iterator_base_types.h \
   /usr/include/c++/13/bits/stl_pair.h \
+  /usr/include/c++/13/bits/stl_tempbuf.h \
   /usr/include/c++/13/bits/stl_uninitialized.h \
   /usr/include/c++/13/bits/stl_vector.h \
   /usr/include/c++/13/bits/streambuf.tcc \
   /usr/include/c++/13/bits/streambuf_iterator.h \
   /usr/include/c++/13/bits/string_view.tcc \
   /usr/include/c++/13/bits/stringfwd.h \
+  /usr/include/c++/13/bits/uniform_int_dist.h \
   /usr/include/c++/13/bits/uses_allocator.h \
   /usr/include/c++/13/bits/uses_allocator_args.h \
   /usr/include/c++/13/bits/utility.h \
@@ -2027,6 +2065,7 @@ CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o: /home/biancano/Documents/School/CS18
   /usr/include/c++/13/cstdint \
   /usr/include/c++/13/cstdio \
   /usr/include/c++/13/cstdlib \
+  /usr/include/c++/13/cstring \
   /usr/include/c++/13/cwchar \
   /usr/include/c++/13/cwctype \
   /usr/include/c++/13/debug/assertions.h \
@@ -2046,6 +2085,8 @@ CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o: /home/biancano/Documents/School/CS18
   /usr/include/c++/13/limits \
   /usr/include/c++/13/new \
   /usr/include/c++/13/ostream \
+  /usr/include/c++/13/pstl/execution_defs.h \
+  /usr/include/c++/13/pstl/glue_algorithm_defs.h \
   /usr/include/c++/13/pstl/pstl_config.h \
   /usr/include/c++/13/sstream \
   /usr/include/c++/13/stdexcept \
@@ -2230,6 +2271,8 @@ CMakeFiles/NPR_Renderer.dir/src/mesh.cpp.o: /home/biancano/Documents/School/CS18
   /usr/include/stdint.h \
   /usr/include/stdio.h \
   /usr/include/stdlib.h \
+  /usr/include/string.h \
+  /usr/include/strings.h \
   /usr/include/time.h \
   /usr/include/wchar.h \
   /usr/include/wctype.h \
@@ -2339,6 +2382,7 @@ CMakeFiles/NPR_Renderer.dir/src/model.cpp.o: /home/biancano/Documents/School/CS1
   /home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.h \
   /home/biancano/Documents/School/CS184/cs184-final-project/src/model.h \
   /home/biancano/Documents/School/CS184/cs184-final-project/src/shader.h \
+  /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glew.h \
   /usr/include/GL/glu.h \
@@ -3426,8 +3470,6 @@ CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o: /home/biancano/Documents/School/C
   /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h
 
 
-/home/biancano/Documents/School/CS184/cs184-final-project/src/texture.h:
-
 /home/biancano/Documents/School/CS184/cs184-final-project/src/texture.cpp:
 
 /home/biancano/Documents/School/CS184/cs184-final-project/src/shader.cpp:
@@ -3489,6 +3531,8 @@ CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o: /home/biancano/Documents/School/C
 /usr/include/c++/13/ext/string_conversions.h:
 
 /usr/include/c++/13/ext/atomicity.h:
+
+/usr/include/c++/13/exception:
 
 /usr/lib/gcc/x86_64-linux-gnu/13/include/smmintrin.h:
 
@@ -4294,8 +4338,6 @@ CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o: /home/biancano/Documents/School/C
 
 /usr/include/glm/detail/type_mat2x2.inl:
 
-/usr/include/c++/13/exception:
-
 /usr/include/glm/detail/type_mat2x4.hpp:
 
 /usr/include/glm/detail/type_mat2x4.inl:
@@ -4513,6 +4555,8 @@ CMakeFiles/NPR_Renderer.dir/src/texture.cpp.o: /home/biancano/Documents/School/C
 /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h:
 
 /home/biancano/Documents/School/CS184/cs184-final-project/src/mesh.h:
+
+/home/biancano/Documents/School/CS184/cs184-final-project/src/texture.h:
 
 /usr/include/c++/13/iostream:
 

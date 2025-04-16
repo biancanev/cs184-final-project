@@ -313,6 +313,10 @@ int main(int argc, char **argv) {
 
         // Render
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        if (currentShader == 2 || currentShader == 3) {
+            glClearColor(1.0, 1.0, 1.0, 0.0);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Activate shader
