@@ -50,5 +50,6 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "window.zoomLevel": 1.25
 }
