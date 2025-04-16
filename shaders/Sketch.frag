@@ -43,7 +43,7 @@ float lineMask(float coord, float thickness, vec2 pos) {
     float thicknessVar = thickness * (1.0 + (noise - 0.5) * u_stroke_randomness * 0.6);
     
     // Add slight waviness to the lines
-    float waviness = sin(pos.y * 50.0) * u_stroke_randomness * 0.1;
+    float waviness = sin(pos.y * 50.0) * u_stroke_randomness * 0.4;
     
     float lineCenter = fract(coord + noiseOffset + waviness);
     
