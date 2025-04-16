@@ -1,3 +1,0 @@
-/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles/NPR_Renderer.dir
-/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles/edit_cache.dir
-/home/biancano/Documents/School/CS184/cs184-final-project/build/CMakeFiles/rebuild_cache.dir
