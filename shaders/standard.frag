@@ -9,6 +9,10 @@ uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
 
+uniform float ambientStrength;
+uniform float specularStrength;
+uniform float shininess;
+
 void main() {
     // Use a different lighting approach - light based on view direction
     vec3 norm = normalize(Normal);
@@ -16,7 +20,6 @@ void main() {
     vec3 lightDir = normalize(lightPos - FragPos);
     
     // Ambient
-    float ambientStrength = 0.2;
     vec3 ambient = ambientStrength * lightColor;
     
     // Diffuse
@@ -24,7 +27,6 @@ void main() {
     vec3 diffuse = diff * lightColor;
     
     // Specular
-    float specularStrength = 0.5;
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;

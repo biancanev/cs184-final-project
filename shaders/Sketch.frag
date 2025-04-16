@@ -24,6 +24,10 @@ uniform float u_detail_enhancement = 4.0;
 uniform float u_edge_contrast = 2.0;            
 uniform float u_stroke_randomness = 0.5;
 
+uniform float ambientStrength;
+uniform float specularStrength;
+uniform float shininess;
+
 // Generate random value based on position
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -57,9 +61,19 @@ void main() {
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(lightPos - fragPos);
     vec3 viewDir = normalize(viewPos - fragPos);
+
+    vec3 ambient = ambientStrength * lightColor;
     
     // Calculate diffuse factor
     float diffuseFactor = max(dot(normal, lightDir), 0.0);
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    vec3 specular = specularStrength * spec * lightColor;
+
+    float totalLightingFactor = (ambient.r + diffuseFactor + specular.r);
+
+    diffuseFactor = min(totalLightingFactor, 1.0);
     
     // Enhanced outline effect - stronger outline based on view angle
     float outlineFactor = dot(viewDir, normal);
@@ -71,7 +85,7 @@ void main() {
     // Calculate screen-space coordinates for stable hatching
     vec2 screenPos = gl_FragCoord.xy / 1000.0;
     
-    // Sample noise for variation
+    // Add noise for nice random sketch look
     float noise1 = texture(u_noise_texture, screenPos * 5.0).r;
     float noise2 = texture(u_noise_texture, screenPos * 15.0).r;
     float noise3 = texture(u_noise_texture, screenPos * 30.0).r;
