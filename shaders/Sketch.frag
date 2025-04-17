@@ -28,7 +28,7 @@ uniform float ambientStrength;
 uniform float specularStrength;
 uniform float shininess;
 
-// Generate random value based on position
+// Generate random value based on position. Reference: https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
@@ -43,7 +43,7 @@ float lineMask(float coord, float thickness, vec2 pos) {
     float thicknessVar = thickness * (1.0 + (noise - 0.5) * u_stroke_randomness * 0.6);
     
     // Add slight waviness to the lines
-    float waviness = sin(pos.y * 50.0) * u_stroke_randomness * 0.4;
+    float waviness = sin(pos.y * 50.0) * u_stroke_randomness * 0.03;
     
     float lineCenter = fract(coord + noiseOffset + waviness);
     
