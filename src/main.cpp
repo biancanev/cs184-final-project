@@ -14,10 +14,13 @@
 
 #include <iostream>
 #include <string>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 // Settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 720;
+const unsigned int SLIDER_WIDTH = 200;
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -39,6 +42,8 @@ std::vector<Shader> shaders;
 // ImGui Variables
 bool showDemoWindow = false;
 bool showControlPanel = true;
+bool showToolPanel = true;
+
 ImVec4 objectColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 float ambientStrength = 0.1f;
 float specularStrength = 0.5f;
@@ -46,8 +51,33 @@ float shininess = 32.0f;
 float lightPosX = 1.2f;
 float lightPosY = 1.0f;
 float lightPosZ = 2.0f;
+
 std::string modelPath = "";
 bool modelLoaded = false;
+
+enum Camera_Mode {
+    CAMERA_PAN,
+    CAMERA_ORBIT,
+    CAMERA_ROTATE,
+    CAMERA_TILT,
+    CAMERA_ZOOM
+};
+Camera_Mode currentCam = CAMERA_PAN;
+
+bool SelectableButton(const char* label, bool isSelected) {
+    if (isSelected) {
+        ImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.2f, 0.6f, 1.0f, 1.0f)); // highlight
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.7f, 1.0f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
+    }
+
+    bool clicked = ImGui::Button(label);
+
+    if (isSelected)
+        ImGui::PopStyleColor(3);
+
+    return clicked;
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -78,12 +108,19 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     if (mouseButtonPressed) {
         // Check if CTRL key is held for panning
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || 
-            glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) {
+            glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS || 
+            currentCam ==  CAMERA_PAN) {
             // Pan the camera
             camera.ProcessMousePan(xoffset, yoffset);
-        } else {
+        } else if (currentCam ==  CAMERA_ORBIT) {
             // Orbit the camera
             camera.ProcessMouseMovementOrbit(xoffset, yoffset);
+        } else if (currentCam ==  CAMERA_ROTATE) {
+            camera.ProcessMouseMovementRotate(xoffset, yoffset);
+        } else if (currentCam ==  CAMERA_TILT) {
+            camera.ProcessMouseMovementTilt(xoffset, yoffset);
+        } else if (currentCam ==  CAMERA_ZOOM) {
+            camera.ProcessMouseScroll(yoffset * 0.2);
         }
     }
 }
@@ -164,7 +201,7 @@ bool loadModelFile(Model& model, const std::string& path) {
 }
 
 // Function to render ImGui interface
-void renderImGui(Model& ourModel) {
+void renderImGui(Model& ourModel, GLFWwindow* window) {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -176,13 +213,66 @@ void renderImGui(Model& ourModel) {
 
     // 2. Show control panel
     if (showControlPanel) {
-        ImGui::Begin("Control Panel", &showControlPanel);
+        // logic for minimizing control panel
+        static bool is_minimized = true;
+        ImVec2 display_size = ImGui::GetIO().DisplaySize;
         
-        if (ImGui::CollapsingHeader("Model")) {
+        float panel_width = 350;
+
+        
+        ImGui::Begin("Control Panel", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+
+        // ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+        // ImGui::SetNextWindowSize(ImVec2(panel_width, 600), ImGuiCond_FirstUseEver);
+        ImGui::SetWindowPos(ImVec2(display_size.x - panel_width - 20, 20));
+        
+        if (ImGui::Button(is_minimized ? "Collapse" : "Expand")) {
+            is_minimized = !is_minimized;
+        }
+        
+        if (!is_minimized) {
+            ImGui::SetWindowSize(ImVec2(panel_width, 50)); 
+        } else {
+            ImGui::SetWindowSize(ImVec2(panel_width, 600));
+        }
+        
+        
+        if (ImGui::CollapsingHeader("Model", ImGuiTreeNodeFlags_DefaultOpen)) {
             // Model loading
             char inputBuffer[256] = "";
             strncpy(inputBuffer, modelPath.c_str(), sizeof(inputBuffer) - 1);
             
+            // List all model files in the models directory
+            // ImGui::Separator();
+            ImGui::Text("Available Models:");
+            
+            std::string modelsDir = "../models";
+            
+            // Scan the directory
+            try {
+                if (fs::exists(modelsDir) && fs::is_directory(modelsDir)) {
+                    for (const auto& entry : fs::directory_iterator(modelsDir)) {
+                        std::string extension = entry.path().extension().string();
+                        if (extension == ".obj" || extension == ".fbx" || 
+                            extension == ".stl" || extension == ".3ds" ||
+                            extension == ".dae" || extension == ".blend") {
+                            
+                            std::string filename = entry.path().filename().string();
+                            if (ImGui::Button(filename.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+                                modelPath = entry.path().string();
+                                // modelLoaded = loadModelFile(ourModel, modelPath);
+                            }
+                        }
+                    }
+                } else {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 
+                                    "Models directory not found: %s", modelsDir.c_str());
+                }
+            } catch (const std::exception& e) {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 
+                                "Error scanning models directory: %s", e.what());
+            }
+
             ImGui::Text("Enter model path:");
             if (ImGui::InputText("##modelpath", inputBuffer, sizeof(inputBuffer))) {
                 modelPath = inputBuffer;
@@ -202,22 +292,28 @@ void renderImGui(Model& ourModel) {
             }
         }
         
-        if (ImGui::CollapsingHeader("Lighting")) {
+        if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen)) {
             // Light properties
+            ImGui::SetNextItemWidth(SLIDER_WIDTH);
             ImGui::SliderFloat("Ambient Strength", &ambientStrength, 0.0f, 1.0f);
+            ImGui::SetNextItemWidth(SLIDER_WIDTH);
             ImGui::SliderFloat("Specular Strength", &specularStrength, 0.0f, 1.0f);
+            ImGui::SetNextItemWidth(SLIDER_WIDTH);
             ImGui::SliderFloat("Shininess", &shininess, 1.0f, 128.0f);
             
             ImGui::Checkbox("Fixed Lighting (Light follows camera)", &fixed_lighting);
             
             if (!fixed_lighting) {
+                ImGui::SetNextItemWidth(SLIDER_WIDTH);
                 ImGui::SliderFloat("Light Position X", &lightPosX, -10.0f, 10.0f);
+                ImGui::SetNextItemWidth(SLIDER_WIDTH);
                 ImGui::SliderFloat("Light Position Y", &lightPosY, -10.0f, 10.0f);
+                ImGui::SetNextItemWidth(SLIDER_WIDTH);
                 ImGui::SliderFloat("Light Position Z", &lightPosZ, -10.0f, 10.0f);
             }
         }
         
-        if (ImGui::CollapsingHeader("Appearance")) {
+        if (ImGui::CollapsingHeader("Appearance", ImGuiTreeNodeFlags_DefaultOpen)) {
             // Color picker
             ImGui::ColorEdit3("Object Color", (float*)&objectColor);
             
@@ -229,6 +325,24 @@ void renderImGui(Model& ourModel) {
         ImGui::Separator();
         //ImGui::Checkbox("Show Demo Window", &showDemoWindow);
         
+        ImGui::End();
+    }
+
+    if (showToolPanel) {
+        ImGui::Begin(" ");
+
+        ImGui::SetWindowPos(ImVec2(20, 10.0f)); // adjust position
+        ImGui::SetWindowSize(ImVec2(80, 200.0f)); // adjust position
+
+        ImGui::Text("Camera");
+        if (SelectableButton("Pan", currentCam == CAMERA_PAN))       currentCam = CAMERA_PAN;
+        if (SelectableButton("Orbit", currentCam == CAMERA_ORBIT))   currentCam = CAMERA_ORBIT;
+        if (SelectableButton("Rotate", currentCam == CAMERA_ROTATE)) currentCam = CAMERA_ROTATE;
+        if (SelectableButton("Tilt", currentCam == CAMERA_TILT))     currentCam = CAMERA_TILT;
+        if (SelectableButton("Zoom", currentCam == CAMERA_ZOOM))     currentCam = CAMERA_ZOOM;
+        
+
+        // ImGui::EndChild();
         ImGui::End();
     }
 
@@ -361,7 +475,7 @@ int main(int argc, char **argv) {
         ourModel.Draw(shaders[currentShader]);
         
         // Render ImGui interface
-        renderImGui(ourModel);
+        renderImGui(ourModel, window);
         
         // Swap buffers and poll events
         glfwSwapBuffers(window);
