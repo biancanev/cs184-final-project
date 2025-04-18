@@ -64,10 +64,10 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
 }
 void Camera::ProcessMouseScroll(float yoffset) {
     Zoom -= yoffset;
-    if (Zoom < 1.0f)
-        Zoom = 1.0f;
-    if (Zoom > 45.0f)
-        Zoom = 45.0f;
+    // if (Zoom < 0.5f)
+    //     Zoom = 0.5f;
+    // if (Zoom > 300.0f)
+    //     Zoom = 300.0f;
 }
 
 void Camera::updateCameraVectors() {
@@ -87,8 +87,52 @@ void Camera::updateCameraVectors() {
 }
 
 void Camera::ProcessMouseMovementOrbit(float xoffset, float yoffset, bool constrainPitch) {
-    xoffset *= MouseSensitivity;
-    yoffset *= MouseSensitivity;
+    xoffset *= MouseSensitivity * 1.5;
+    yoffset *= MouseSensitivity * 1.5;
+
+    Yaw   += xoffset;
+    Pitch += yoffset;
+
+    // Make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (constrainPitch) {
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+    }
+
+    // Update Front, Right and Up Vectors using the updated Euler angles
+    updateCameraVectors();
+    
+    // Calculate new position based on orbit distance
+    Position = Target - Front * OrbitDistance;
+}
+
+void Camera::ProcessMouseMovementRotate(float xoffset, float yoffset, bool constrainPitch) {
+    xoffset *= MouseSensitivity * 1.5;
+    yoffset *= MouseSensitivity * 0;
+
+    Yaw   += xoffset;
+    Pitch += yoffset;
+
+    // Make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (constrainPitch) {
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+    }
+
+    // Update Front, Right and Up Vectors using the updated Euler angles
+    updateCameraVectors();
+    
+    // Calculate new position based on orbit distance
+    Position = Target - Front * OrbitDistance;
+}
+
+void Camera::ProcessMouseMovementTilt(float xoffset, float yoffset, bool constrainPitch) {
+    xoffset *= MouseSensitivity * 0;
+    yoffset *= MouseSensitivity * 1.5;
 
     Yaw   += xoffset;
     Pitch += yoffset;
@@ -109,15 +153,15 @@ void Camera::ProcessMouseMovementOrbit(float xoffset, float yoffset, bool constr
 }
 
 void Camera::ProcessMousePan(float xoffset, float yoffset) {
-    xoffset *= MouseSensitivity * 0.05f; // Adjust sensitivity for panning
-    yoffset *= MouseSensitivity * 0.05f;
+    xoffset *= MouseSensitivity * 0.01f; // Adjust sensitivity for panning
+    yoffset *= MouseSensitivity * 0.01f;
     
     // Move the target point (and consequently the camera) in the plane perpendicular to view direction
     glm::vec3 panRight = Right * xoffset * OrbitDistance;
     glm::vec3 panUp = Up * yoffset * OrbitDistance;
     
     Target -= panRight;
-    Target += panUp;
+    Target -= panUp;
     
     // Update position based on new target
     Position = Target - Front * OrbitDistance;

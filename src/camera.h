@@ -62,7 +62,9 @@ public:
     void SetOrbitTarget(glm::vec3 target);
 
     void ProcessMouseMovementOrbit(float xoffset, float yoffset, bool constrainPitch = true);
-    
+    void ProcessMouseMovementRotate(float xoffset, float yoffset, bool constrainPitch = true);
+    void ProcessMouseMovementTilt(float xoffset, float yoffset, bool constrainPitch = true);
+
     void ProcessMousePan(float xoffset, float yoffset);
 
 private:
