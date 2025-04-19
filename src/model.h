@@ -39,6 +39,9 @@ public:
 
     // Draws the model, and thus all its meshes
     void Draw(Shader &shader);
+
+    void createGrid(float size, int subdivisions);
+
     
 private:
     // Loads a model with supported ASSIMP extensions from file
@@ -55,5 +58,6 @@ private:
     
     // Creates a default cube for testing
     void createCube();
+
 };
 #endif

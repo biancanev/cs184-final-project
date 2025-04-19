@@ -1,22 +1,24 @@
 #include "camera.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) 
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float roll) 
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
     Position = position;
     WorldUp = up;
     Yaw = yaw;
     Pitch = pitch;
+    Roll = roll;
     Target = glm::vec3(0.0f, 0.0f, 0.0f);
     OrbitDistance = glm::length(Position - Target); 
     updateCameraVectors();
 }
 
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) 
+Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch, float roll) 
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
     Position = glm::vec3(posX, posY, posZ);
     WorldUp = glm::vec3(upX, upY, upZ);
     Yaw = yaw;
     Pitch = pitch;
+    Roll = roll;
     updateCameraVectors();
 }
 
@@ -70,19 +72,32 @@ void Camera::ProcessMouseScroll(float yoffset) {
     //     Zoom = 300.0f;
 }
 
+// check this code later
 void Camera::updateCameraVectors() {
-    // Calculate the new Front vector
     glm::vec3 front;
     front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
     front.y = sin(glm::radians(Pitch));
     front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
     Front = glm::normalize(front);
     
-    // Also re-calculate the Right and Up vector
-    Right = glm::normalize(glm::cross(Front, WorldUp));  
+    // Calculate the Right vector without roll
+    glm::vec3 rightNoRoll = glm::normalize(glm::cross(Front, WorldUp));
+    glm::vec3 upNoRoll = glm::normalize(glm::cross(rightNoRoll, Front));
+    
+    // Apply roll rotation to the Up and Right vectors
+    float rollRadians = glm::radians(Roll);
+    float cosR = cos(rollRadians);
+    float sinR = sin(rollRadians);
+    
+    // Rotate the Up and Right vectors around the Front vector
+    Right.x = rightNoRoll.x * cosR + upNoRoll.x * sinR;
+    Right.y = rightNoRoll.y * cosR + upNoRoll.y * sinR;
+    Right.z = rightNoRoll.z * cosR + upNoRoll.z * sinR;
+    Right = glm::normalize(Right);
+    
     Up = glm::normalize(glm::cross(Right, Front));
     
-    // Update Position to orbit around Target at the current OrbitDistance
+    // Update Position as before
     Position = Target - Front * OrbitDistance;
 }
 
@@ -150,6 +165,25 @@ void Camera::ProcessMouseMovementTilt(float xoffset, float yoffset, bool constra
     
     // Calculate new position based on orbit distance
     Position = Target - Front * OrbitDistance;
+}
+
+void Camera::ProcessMouseMovementRoll(float xoffset, float yoffset, bool constrainPitch) {
+    float rollOffset = xoffset * MouseSensitivity * 1.5f;
+    
+    Roll += rollOffset;
+    
+    // Optionally constrain roll within a certain range
+    // For example, if you want to limit roll to ±180 degrees:
+    if (Roll > 180.0f)
+        Roll -= 360.0f;
+    if (Roll < -180.0f)
+        Roll += 360.0f;
+        
+    // Update vectors
+    updateCameraVectors();
+    
+    // Calculate new position based on orbit distance
+    // Position = Target - Front * OrbitDistance;
 }
 
 void Camera::ProcessMousePan(float xoffset, float yoffset) {
