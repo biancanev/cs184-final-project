@@ -22,8 +22,11 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 const unsigned int SLIDER_WIDTH = 200;
 
+
+
+
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -15.0f);
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -43,6 +46,7 @@ std::vector<Shader> shaders;
 bool showDemoWindow = false;
 bool showControlPanel = true;
 bool showToolPanel = true;
+bool showGrid = false;
 
 ImVec4 objectColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 float ambientStrength = 0.1f;
@@ -60,7 +64,8 @@ enum Camera_Mode {
     CAMERA_ORBIT,
     CAMERA_ROTATE,
     CAMERA_TILT,
-    CAMERA_ZOOM
+    CAMERA_ZOOM,
+    CAMERA_ROLL
 };
 Camera_Mode currentCam = CAMERA_PAN;
 
@@ -121,6 +126,8 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
             camera.ProcessMouseMovementTilt(xoffset, yoffset);
         } else if (currentCam ==  CAMERA_ZOOM) {
             camera.ProcessMouseScroll(yoffset * 0.2);
+        } else if (currentCam ==  CAMERA_ROLL) {
+            camera.ProcessMouseMovementRoll(xoffset, yoffset);
         }
     }
 }
@@ -228,6 +235,12 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
         
         if (ImGui::Button(is_minimized ? "Collapse" : "Expand")) {
             is_minimized = !is_minimized;
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button(showGrid ? "Hide Reference Plane" : "Show Reference Plane")) {
+            showGrid = !showGrid;
         }
         
         if (!is_minimized) {
@@ -339,6 +352,7 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
         if (SelectableButton("Orbit", currentCam == CAMERA_ORBIT))   currentCam = CAMERA_ORBIT;
         if (SelectableButton("Rotate", currentCam == CAMERA_ROTATE)) currentCam = CAMERA_ROTATE;
         if (SelectableButton("Tilt", currentCam == CAMERA_TILT))     currentCam = CAMERA_TILT;
+        if (SelectableButton("Roll", currentCam == CAMERA_ROLL))     currentCam = CAMERA_ROLL;
         if (SelectableButton("Zoom", currentCam == CAMERA_ZOOM))     currentCam = CAMERA_ZOOM;
         
 
@@ -404,14 +418,19 @@ int main(int argc, char **argv) {
     Shader celShader("../shaders/standard.vert", "../shaders/Cel.frag");
     Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
     Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
+    Shader gridShader("../shaders/grid.vert", "../shaders/grid.frag");
     
     shaders.push_back(standardShader);
     shaders.push_back(celShader);
     shaders.push_back(watercolorShader);
     shaders.push_back(sketchShader);
 
-    // Load models
+    Model gridModel;
     Model ourModel;
+
+    gridModel = Model();
+    gridModel.createGrid(5.0f, 100);
+
 
     camera.SetOrbitTarget(glm::vec3(0.0f, 0.0f, 0.0f)); 
 
@@ -473,6 +492,28 @@ int main(int argc, char **argv) {
             glm::vec3(objectColor.x, objectColor.y, objectColor.z));
         
         ourModel.Draw(shaders[currentShader]);
+
+
+        if (showGrid) {
+            // Enable transparency
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            
+            // Use grid shader
+            gridShader.use();
+            
+            // Set standard uniforms
+            gridShader.setMat4("projection", projection);
+            gridShader.setMat4("view", view);
+            gridShader.setMat4("model", glm::mat4(1.0f));
+            
+            // Draw the grid
+            gridModel.Draw(gridShader);
+            
+            // Restore OpenGL state
+            glDisable(GL_BLEND);
+        }
+
         
         // Render ImGui interface
         renderImGui(ourModel, window);
