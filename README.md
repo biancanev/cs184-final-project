@@ -43,7 +43,7 @@ cd build
 windows_build
 ```
 
-Congratulations! The renderer should be fully built on your Windows machine! in the `build` folder run the `NPR_Renderer` executable to launch the GUI.
+Congratulations! The renderer should be fully built on your Windows machine! In the `build` folder run the `NPR_Renderer` executable to launch the GUI.
 
 ## 1.0 GUI Controls
 | Hotkey | Function |
