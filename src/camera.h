@@ -18,6 +18,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
+const float ROLL        =  0.0f;
 const float SPEED       =  2.5f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
@@ -36,16 +37,17 @@ public:
     // Euler Angles
     float Yaw;
     float Pitch;
+    float Roll;
     // Camera options
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
 
     // Constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float roll = ROLL);
     
     // Constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch, float roll);
 
     // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix();
@@ -64,7 +66,7 @@ public:
     void ProcessMouseMovementOrbit(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessMouseMovementRotate(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessMouseMovementTilt(float xoffset, float yoffset, bool constrainPitch = true);
-
+    void ProcessMouseMovementRoll(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessMousePan(float xoffset, float yoffset);
 
 private:

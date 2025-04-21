@@ -14,16 +14,35 @@ if(APPLE)
     
     set(ASSIMP_INCLUDE_DIR "/opt/homebrew/include")
     set(ASSIMP_LIBRARY "/opt/homebrew/lib/libassimp.dylib")
+elseif(WIN32 OR MINGW)
+    # Windows specific settings using MSYS2 packages
+    set(GLFW_INCLUDE_DIR "C:/msys64/mingw64/include")
+    set(GLFW_LIBRARY "C:/msys64/mingw64/lib/libglfw3.dll.a")
+    
+    set(GLEW_INCLUDE_DIR "C:/msys64/mingw64/include")
+    set(GLEW_LIBRARY "C:/msys64/mingw64/lib/libglew32.dll.a")
+    
+    set(ASSIMP_INCLUDE_DIR "C:/msys64/mingw64/include")
+    set(ASSIMP_LIBRARY "C:/msys64/mingw64/lib/libassimp.dll.a")
+    
+    # GLM is header-only, already installed
+    set(GLM_INCLUDE_DIR "C:/msys64/mingw64/include")
+    set(GLM_INCLUDE_DIRS "C:/msys64/mingw64/include")
+    set(GLM_FOUND TRUE)
 else()
-    # Windows/Linux will use find_package
+    # Linux will use find_package
     find_package(glfw3 REQUIRED)
     find_package(GLEW REQUIRED)
     find_package(assimp REQUIRED)
+    find_package(glm REQUIRED)
 endif()
 
 # Find required packages for all platforms
 find_package(OpenGL REQUIRED)
-find_package(glm REQUIRED)
+# Only find GLM on non-Windows platforms
+if(NOT WIN32 AND NOT MINGW) 
+    find_package(glm REQUIRED)
+endif()
 
 # Include directories
 include_directories(
@@ -35,6 +54,12 @@ include_directories(
 
 # Platform-specific include directories
 if(APPLE)
+    include_directories(
+        ${GLEW_INCLUDE_DIR}
+        ${ASSIMP_INCLUDE_DIR}
+        ${GLFW_INCLUDE_DIR}
+    )
+elseif(WIN32 OR MINGW)
     include_directories(
         ${GLEW_INCLUDE_DIR}
         ${ASSIMP_INCLUDE_DIR}
@@ -67,6 +92,14 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${IMGUI_SOURCES})
 
 # Link libraries - platform specific
 if(APPLE)
+    target_link_libraries(${PROJECT_NAME}
+        ${OPENGL_LIBRARIES}
+        ${GLFW_LIBRARY}
+        ${ASSIMP_LIBRARY}
+        ${GLEW_LIBRARY}
+        ${CMAKE_DL_LIBS}
+    )
+elseif(WIN32 OR MINGW)
     target_link_libraries(${PROJECT_NAME}
         ${OPENGL_LIBRARIES}
         ${GLFW_LIBRARY}

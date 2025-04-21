@@ -8,6 +8,7 @@ Model::Model(const std::string &path, bool gamma) : gammaCorrection(gamma) {
 // Default constructor creates a simple colored cube
 Model::Model() {
     createCube();
+    // createGrid(10, 20);
 }
 
 void Model::Draw(Shader &shader) {
@@ -324,4 +325,51 @@ void Model::createCube() {
     
     // Create mesh and add to the meshes vector
     meshes.push_back(Mesh(vertices, indices, textures));
+}
+
+void Model::createGrid(float size, int subdivisions) {
+    meshes.clear();
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    float halfSize = size / 2.0f;
+
+    Vertex vertex;
+
+    // bottom left
+    vertex.Position = glm::vec3(-halfSize, 0.0f, -halfSize);
+    vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
+    vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+    vertex.Tangent = glm::vec3(1.0f, 0.0f, 0.0f);
+    vertex.Bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
+    vertices.push_back(vertex);
+
+    // bottom right
+    vertex.Position = glm::vec3(halfSize, 0.0f, -halfSize);
+    vertex.TexCoords = glm::vec2(1.0f, 0.0f);
+    vertices.push_back(vertex);
+
+    // top right
+    vertex.Position = glm::vec3(halfSize, 0.0f, halfSize);
+    vertex.TexCoords = glm::vec2(1.0f, 1.0f);
+    vertices.push_back(vertex);
+
+    // top left
+    vertex.Position = glm::vec3(-halfSize, 0.0f, halfSize);
+    vertex.TexCoords = glm::vec2(0.0f, 1.0f);
+    vertices.push_back(vertex);
+
+    // Set indices (2 triangles)
+    indices.push_back(0);
+    indices.push_back(1);
+    indices.push_back(2);
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(0);
+
+    std::vector<Texture> textures;
+
+    meshes.push_back(Mesh(vertices, indices, textures));
+
 }
