@@ -401,7 +401,7 @@ int main(int argc, char **argv) {
     // Load shaders
     std::cout << "Attempting to load shader from: shaders/standard.frag" << std::endl;
     Shader standardShader("../shaders/standard.vert", "../shaders/standard.frag");
-    Shader celShader("../shaders/standard.vert", "../shaders/Cel.frag");
+    Shader celShader("../shaders/Cel.vert", "../shaders/Cel.frag");
     Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
     Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
     
