@@ -328,9 +328,16 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
             
             if (ImGui::Button("Load Model")) {
                 if (!modelPath.empty()) {
+                    ourModel.meshes[0].textures.clear();
+                    textureLoaded = false;
+                    texturePath = "";
+                    std::cout << "Texture removed from model" << std::endl;
+                    Texture newTexture;
+                    ourModel.replaceTextures({newTexture});
                     modelLoaded = loadModelFile(ourModel, modelPath);
-                }
+                    ourModel.replaceTextures({newTexture});
             }
+        }
             
             ImGui::SameLine();
             
@@ -613,8 +620,8 @@ int main(int argc, char **argv) {
         }
 
         // Set object color from ImGui
-        // shaders[currentShader].setVec3("objectColor", glm::vec3(objectColor.x, objectColor.y, objectColor.z));
-        shaders[currentShader].setVec3("objectColor", glm::vec3(0.7, 0.1, 0.1));
+        shaders[currentShader].setVec3("objectColor", glm::vec3(objectColor.x, objectColor.y, objectColor.z));
+        // shaders[currentShader].setVec3("objectColor", glm::vec3(0.7, 0.1, 0.1));
 
         
         ourModel.Draw(shaders[currentShader]);
