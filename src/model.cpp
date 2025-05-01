@@ -11,6 +11,12 @@ Model::Model() {
     // createGrid(10, 20);
 }
 
+void Model::replaceTextures(const std::vector<Texture>& newTextures) {
+    if (!meshes.empty()) {
+        meshes[0].textures = newTextures;
+    }
+}
+
 void Model::Draw(Shader &shader) {
     for(unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader);

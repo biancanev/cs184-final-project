@@ -22,6 +22,27 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
     updateCameraVectors();
 }
 
+void Camera::ResetOrientation() {
+    // Reset rotation angles
+    Yaw = -90.0f;
+    Pitch = 0.0f;
+    Roll = 0.0f;
+    
+    // Reset all vectors
+    Front = glm::vec3(0.0f, 0.0f, -1.0f);
+    WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    Right = glm::vec3(1.0f, 0.0f, 0.0f);
+    Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    
+    // Reset orbit parameters
+    Target = glm::vec3(0.0f, 0.0f, 0.0f);
+    OrbitDistance = 3.0f;
+    Position = Target - Front * OrbitDistance;
+    
+    // Recalculate all vectors with clean state
+    updateCameraVectors();
+}
+
 glm::mat4 Camera::GetViewMatrix() {
     return glm::lookAt(Position, Target, Up);
 }
@@ -65,11 +86,16 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
     Position = Target - Front * OrbitDistance;
 }
 void Camera::ProcessMouseScroll(float yoffset) {
-    Zoom -= yoffset;
+    // Zoom -= yoffset;
     // if (Zoom < 0.5f)
     //     Zoom = 0.5f;
     // if (Zoom > 300.0f)
     //     Zoom = 300.0f;
+    float moveAmount = yoffset * 0.5f; // Adjust this multiplier to control sensitivity
+    Position += Front * moveAmount;
+    
+    // If using orbit camera, update orbit distance
+    OrbitDistance = glm::length(Position - Target);
 }
 
 // check this code later

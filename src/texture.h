@@ -23,6 +23,8 @@ class Texture{
         void unbind() const;
 
         void cleanup();
+
+        bool loadTextureFromFile(const std::string& path);
 };
 
 
