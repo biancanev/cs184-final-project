@@ -49,11 +49,13 @@ bool showGrid = true;
 
 ImVec4 objectColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 float ambientStrength = 0.1f;
+float outlineThickness = 0.03f;
 float specularStrength = 0.5f;
 float shininess = 32.0f;
 float lightPosX = 1.2f;
 float lightPosY = 1.0f;
 float lightPosZ = 2.0f;
+bool useWhiteBackground = false;
 
 std::string modelPath = "";
 bool modelLoaded = false;
@@ -383,6 +385,11 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
                         // << " B=" << objectColor.z
                         // << std::endl;
 
+                        ImGui::SetNextItemWidth(SLIDER_WIDTH);
+                        ImGui::SliderFloat("Outline Thickness", &outlineThickness, 0.0f, 0.1f, "%.3f");
+
+                        ImGui::Checkbox("White Background", &useWhiteBackground);
+
                         // Texture picker
                         ImGui::Text("Available Textures:");
 
@@ -403,310 +410,568 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
                                                                 texturePath = entry.path().string();
                                                         }
                                                 }
+
+                                                if (ImGui::Button("Load Model")) {
+                                                        if (!modelPath.empty()) {
+                                                                ourModel.meshes[0].textures.clear();
+                                                                textureLoaded = false;
+                                                                texturePath = "";
+                                                                std::cout << "Texture removed from model" << std::endl;
+                                                                Texture newTexture;
+                                                                ourModel.replaceTextures({newTexture});
+                                                                modelLoaded = loadModelFile(ourModel, modelPath);
+                                                                ourModel.replaceTextures({newTexture});
+                                                        }
+                                                }
+
+                                                ImGui::SameLine();
+
+                                                if (ImGui::Button("Load Default Cube")) {
+                                                        ourModel = Model(); // Creates default cube
+                                                        modelLoaded = true;
+                                                }
                                         }
-                                } else {
-                                        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
-                                                           "Textures directory not found: %s", textureDir.c_str());
-                                }
-                        } catch (const std::exception& e) {
-                                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
-                                                   "Error scanning textures directory: %s", e.what());
-                        }
 
-                        ImGui::Text("Enter texture path:");
-                        if (ImGui::InputText("##texturepath", texInputBuffer, sizeof(texInputBuffer))) {
-                                texturePath = texInputBuffer;
-                        }
+                                        if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen)) {
+                                                // Light properties
+                                                ImGui::SetNextItemWidth(SLIDER_WIDTH);
+                                                ImGui::SliderFloat("Ambient Strength", &ambientStrength, 0.0f, 1.0f);
+                                                ImGui::SetNextItemWidth(SLIDER_WIDTH);
+                                                ImGui::SliderFloat("Specular Strength", &specularStrength, 0.0f, 1.0f);
+                                                ImGui::SetNextItemWidth(SLIDER_WIDTH);
+                                                ImGui::SliderFloat("Shininess", &shininess, 1.0f, 128.0f);
 
-                        if (ImGui::Button("Load Color/Texture")) {
-                                if (!texturePath.empty()) {
-                                        Texture newTexture;
+                                                ImGui::Checkbox("Fixed Lighting (Light follows camera)",
+                                                                &fixed_lighting);
 
-                                        // Load the texture as a diffuse texture
-                                        if (newTexture.loadTextureFromFile(texturePath)) {
-                                                // Replace textures in the model
-                                                ourModel.replaceTextures({newTexture});
-
-                                                textureLoaded = true;
-                                                std::cout << "Texture loaded and applied to model: " << texturePath
-                                                          << std::endl;
-                                        } else {
-                                                std::cerr << "Failed to load texture: " << texturePath << std::endl;
-                                                textureLoaded = false;
+                                                if (!fixed_lighting) {
+                                                        ImGui::SetNextItemWidth(SLIDER_WIDTH);
+                                                        ImGui::SliderFloat("Light Position X", &lightPosX, -10.0f,
+                                                                           10.0f);
+                                                        ImGui::SetNextItemWidth(SLIDER_WIDTH);
+                                                        ImGui::SliderFloat("Light Position Y", &lightPosY, -10.0f,
+                                                                           10.0f);
+                                                        ImGui::SetNextItemWidth(SLIDER_WIDTH);
+                                                        ImGui::SliderFloat("Light Position Z", &lightPosZ, -10.0f,
+                                                                           10.0f);
+                                                }
                                         }
-                                } else {
-                                        Texture newTexture;
-                                        ourModel.replaceTextures({newTexture});
+
+                                        if (ImGui::CollapsingHeader("Appearance", ImGuiTreeNodeFlags_DefaultOpen)) {
+                                                char texInputBuffer[256] = "";
+                                                strncpy(texInputBuffer, texturePath.c_str(),
+                                                        sizeof(texInputBuffer) - 1);
+                                                // Color picker
+                                                ImGui::ColorEdit3("Object Color", (float*)&objectColor);
+                                                // std::cout << "Color: R=" << objectColor.x
+                                                // << " G=" << objectColor.y
+                                                // << " B=" << objectColor.z
+                                                // << std::endl;
+
+                                                // Texture picker
+                                                ImGui::Text("Available Textures:");
+
+                                                std::string textureDir = "../textures";
+
+                                                // Scan the directory
+                                                try {
+                                                        if (fs::exists(textureDir) && fs::is_directory(textureDir)) {
+                                                                for (const auto& entry :
+                                                                     fs::directory_iterator(textureDir)) {
+                                                                        std::string extension =
+                                                                                entry.path().extension().string();
+                                                                        if (extension == ".jpg" ||
+                                                                            extension == ".jpeg" ||
+                                                                            extension == ".png") {
+
+                                                                                std::string filename =
+                                                                                        entry.path()
+                                                                                                .filename()
+                                                                                                .string();
+                                                                                if (ImGui::Button(
+                                                                                            filename.c_str(),
+                                                                                            ImVec2(ImGui::GetContentRegionAvail()
+                                                                                                           .x,
+                                                                                                   0))) {
+                                                                                        texturePath =
+                                                                                                entry.path().string();
+                                                                                }
+                                                                        }
+                                                                }
+                                                        } else {
+                                                                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                                                   "Textures directory not found: %s",
+                                                                                   textureDir.c_str());
+                                                        }
+                                                } catch (const std::exception& e) {
+                                                        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
+                                                                           "Error scanning textures directory: %s",
+                                                                           e.what());
+                                                }
+
+                                                ImGui::Text("Enter texture path:");
+                                                if (ImGui::InputText("##texturepath", texInputBuffer,
+                                                                     sizeof(texInputBuffer))) {
+                                                        texturePath = texInputBuffer;
+                                                }
+
+                                                if (ImGui::Button("Load Color/Texture")) {
+                                                        if (!texturePath.empty()) {
+                                                                Texture newTexture;
+
+                                                                // Load the texture as a diffuse texture
+                                                                if (newTexture.loadTextureFromFile(texturePath)) {
+                                                                        // Replace textures in the model
+                                                                        ourModel.replaceTextures({newTexture});
+
+                                                                        textureLoaded = true;
+                                                                        std::cout << "Texture loaded and applied to "
+                                                                                     "model: "
+                                                                                  << texturePath << std::endl;
+                                                                } else {
+                                                                        std::cerr << "Failed to load texture: "
+                                                                                  << texturePath << std::endl;
+                                                                        textureLoaded = false;
+                                                                }
+                                                        } else {
+                                                                Texture newTexture;
+                                                                ourModel.replaceTextures({newTexture});
+                                                        }
+                                                }
+                                                ImGui::SameLine();
+                                                if (ImGui::Button("Remove Texture")) {
+                                                        // Clear textures from the model
+                                                        if (!ourModel.meshes.empty()) {
+                                                                ourModel.meshes[0].textures.clear();
+                                                                textureLoaded = false;
+                                                                texturePath = "";
+                                                                std::cout << "Texture removed from model" << std::endl;
+                                                                Texture newTexture;
+                                                                ourModel.replaceTextures({newTexture});
+                                                        }
+                                                }
+
+                                                // Shader selection
+                                                const char* shaderNames[] = {"Standard", "Cel", "Watercolor", "Sketch"};
+                                                ImGui::Combo("Shader", &currentShader, shaderNames,
+                                                             IM_ARRAYSIZE(shaderNames));
+                                        }
+
+                                        ImGui::Separator();
+                                        // ImGui::Checkbox("Show Demo Window", &showDemoWindow);
+
+                                        ImGui::End();
                                 }
+
+                                if (showToolPanel) {
+                                        ImGui::Begin(" ");
+
+                                        ImGui::SetWindowPos(ImVec2(20, 10.0f));    // adjust position
+                                        ImGui::SetWindowSize(ImVec2(100, 400.0f)); // adjust position
+
+                                        ImGui::Text("Camera");
+                                        if (SelectableButton("Pan", currentTool == CAMERA_PAN))
+                                                currentTool = CAMERA_PAN;
+                                        if (SelectableButton("Orbit", currentTool == CAMERA_ORBIT))
+                                                currentTool = CAMERA_ORBIT;
+                                        if (SelectableButton("Rotate", currentTool == CAMERA_ROTATE))
+                                                currentTool = CAMERA_ROTATE;
+                                        if (SelectableButton("Tilt", currentTool == CAMERA_TILT))
+                                                currentTool = CAMERA_TILT;
+                                        if (SelectableButton("Roll", currentTool == CAMERA_ROLL))
+                                                currentTool = CAMERA_ROLL;
+                                        if (SelectableButton("Zoom", currentTool == CAMERA_ZOOM))
+                                                currentTool = CAMERA_ZOOM;
+                                        ImGui::Text("Model");
+                                        if (SelectableButton("Scale", currentTool == MODEL_SCALE))
+                                                currentTool = MODEL_SCALE;
+                                        if (SelectableButton("Rotate X", currentTool == MODEL_ROTATE_X))
+                                                currentTool = MODEL_ROTATE_X;
+                                        if (SelectableButton("Rotate Y", currentTool == MODEL_ROTATE_Y))
+                                                currentTool = MODEL_ROTATE_Y;
+                                        if (SelectableButton("Rotate Z", currentTool == MODEL_ROTATE_Z))
+                                                currentTool = MODEL_ROTATE_Z;
+                                        if (SelectableButton("Translate X", currentTool == MODEL_TRANSLATE_X))
+                                                currentTool = MODEL_TRANSLATE_X;
+                                        if (SelectableButton("Translate Y", currentTool == MODEL_TRANSLATE_Y))
+                                                currentTool = MODEL_TRANSLATE_Y;
+                                        if (SelectableButton("Translate Z", currentTool == MODEL_TRANSLATE_Z))
+                                                currentTool = MODEL_TRANSLATE_Z;
+
+                                        // ImGui::EndChild();
+                                        ImGui::End();
+                                }
+
+                                // Render ImGui
+                                ImGui::Render();
+                                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
                         }
-                        ImGui::SameLine();
-                        if (ImGui::Button("Remove Texture")) {
-                                // Clear textures from the model
+
+                        int main(int argc, char** argv) {
+                                std::string modelPath = "../models/Baby_Groot_Funko_Pop.stl";
+                                if (argc > 1) {
+                                        modelPath = argv[1];
+                                }
+
+                                // Initialize GLFW
+                                if (!glfwInit()) {
+                                        std::cerr << "Failed to initialize GLFW" << std::endl;
+                                        return -1;
+                                }
+
+                                // Configure GLFW
+                                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+                                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+                                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+                                // Create window
+                                GLFWwindow* window =
+                                        glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "NPR Renderer", NULL, NULL);
+                                if (window == NULL) {
+                                        std::cout << "Failed to create GLFW window" << std::endl;
+                                        glfwTerminate();
+                                        return -1;
+                                }
+                                glfwMakeContextCurrent(window);
+                                glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+                                glfwSetCursorPosCallback(window, mouse_callback);
+                                glfwSetMouseButtonCallback(window, mouse_button_callback);
+                                glfwSetScrollCallback(window, scroll_callback);
+                                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+                                glewExperimental = GL_TRUE; // Needed for core profile
+                                if (glewInit() != GLEW_OK) {
+                                        std::cout << "Failed to initialize GLEW" << std::endl;
+                                        return -1;
+                                }
+
+                                // Print OpenGL version info
+                                std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+                                std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
+                                // Configure global OpenGL state
+                                glEnable(GL_DEPTH_TEST);
+
+                                // Setup ImGui
+                                setupImGui(window);
+
+                                // Load shaders
+                                std::cout << "Attempting to load shader from: shaders/standard.frag" << std::endl;
+                                Shader standardShader("../shaders/standard.vert", "../shaders/standard.frag");
+                                Shader celShader("../shaders/Cel.vert", "../shaders/Cel.frag");
+                                Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
+                                Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
+                                Shader gridShader("../shaders/grid.vert", "../shaders/grid.frag");
+
+                                shaders.push_back(standardShader);
+                                shaders.push_back(celShader);
+                                shaders.push_back(watercolorShader);
+                                shaders.push_back(sketchShader);
+
+                                Texture noiseTexture, paperTexture;
+                                if (!noiseTexture.loadTextureFromFile("../textures/noise.png"))
+                                        std::cerr << "Failed to load noise texture" << std::endl;
+                                if (!paperTexture.loadTextureFromFile("../textures/paper.png"))
+                                        std::cerr << "Failed to load paper texture" << std::endl;
+
+                                Model gridModel;
+                                Model ourModel;
+
+                                gridModel = Model();
+                                gridModel.createGrid(5.0f, 100);
+
+                                camera.SetOrbitTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+
+                                // Render loop
+                                while (!glfwWindowShouldClose(window)) {
+                                        // Per-frame time logic
+                                        float currentFrame = static_cast<float>(glfwGetTime());
+                                        deltaTime = currentFrame - lastFrame;
+                                        lastFrame = currentFrame;
+
+                                        // Input
+                                        processInput(window);
+
+                                        // Render
+                                        if (currentShader == 2 || currentShader == 3)
+                                                glClearColor(1.0, 1.0, 1.0, 0.0);
+                                        else
+                                                glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+                                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                                        // Activate shader
+                                        shaders[currentShader].use();
+
+                                        // Set shader uniforms
+                                        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
+                                                                                static_cast<float>(SCR_WIDTH) /
+                                                                                        static_cast<float>(SCR_HEIGHT),
+                                                                                0.1f, 100.0f);
+                                        glm::mat4 view = camera.GetViewMatrix();
+                                        shaders[currentShader].setMat4("projection", projection);
+                                        shaders[currentShader].setMat4("view", view);
+
+                                        // Light properties
+                                        glm::vec3 lightPos(lightPosX, lightPosY, lightPosZ);
+                                        if (fixed_lighting) {
+                                                lightPos = camera.Position + camera.Front * 2.0f;
+                                        }
+
+                                        shaders[currentShader].setVec3("lightPos", lightPos);
+                                        shaders[currentShader].setVec3("viewPos", camera.Position);
+                                        shaders[currentShader].setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+
+                                        // Set custom lighting parameters from ImGui
+                                        shaders[currentShader].setFloat("ambientStrength", ambientStrength);
+                                        shaders[currentShader].setFloat("specularStrength", specularStrength);
+                                        shaders[currentShader].setFloat("shininess", shininess);
+
+                                        // Optional: Pass time to shader for animation effects
+                                        shaders[currentShader].setFloat("time", currentFrame);
+
+                                        // Render the model
+                                        glm::mat4 model = modelTransform.GetModelMatrix();
+                                        shaders[currentShader].setMat4("model", model);
+
+                                        if (!ourModel.meshes.empty()) {
+
+                                                if (textureLoaded) {
+                                                        // Texture is loaded
+                                                        ourModel.meshes[0].textures[0].bind(0);
+                                                        shaders[currentShader].setInt("hasTexture", 1);
+                                                        shaders[currentShader].setInt("texture_diffuse1", 0);
+                                                } else {
+                                                        // No texture, use solid color
+                                                        // std::cout << "no texture" << std::endl;
+                                                        shaders[currentShader].setInt("hasTexture", 0);
+                                                }
+
+                                                if (currentShader == 2) {
+                                                        noiseTexture.bind(1);
+                                                        paperTexture.bind(1);
+                                                        shaders[currentShader].setInt("u_noise_texture", 1);
+                                                        shaders[currentShader].setInt("u_paper_texture", 2);
+
+                                                        shaders[currentShader].setVec3(
+                                                                "u_color1", glm::vec3(col1.x, col1.y, col1.z));
+                                                        shaders[currentShader].setVec3(
+                                                                "u_color2", glm::vec3(col2.x, col2.y, col2.z));
+                                                        shaders[currentShader].setVec3(
+                                                                "u_color3", glm::vec3(col3.x, col3.y, col3.z));
+                                                        shaders[currentShader].setVec3(
+                                                                "u_color4", glm::vec3(col4.x, col4.y, col4.z));
+
+                                                        shaders[currentShader].setFloat("u_edge_intensity",
+                                                                                        edgeIntensityValue);
+                                                        shaders[currentShader].setFloat("u_edge_noise", edgeNoiseValue);
+                                                        shaders[currentShader].setFloat("u_granulation",
+                                                                                        granulationValue);
+                                                        shaders[currentShader].setFloat("u_paper_visibility",
+                                                                                        paperVisibilityValue);
+                                                        shaders[currentShader].setFloat("u_transparency",
+                                                                                        transparencyValue);
+
+                                                        glEnable(GL_BLEND);
+                                                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                                                }
+                                        }
+
+                                        // Set object color from ImGui
+                                        shaders[currentShader].setVec3(
+                                                "objectColor", glm::vec3(objectColor.x, objectColor.y, objectColor.z));
+                                        // shaders[currentShader].setVec3("objectColor", glm::vec3(0.7, 0.1, 0.1));
+
+                                        ourModel.Draw(shaders[currentShader]);
+
+                                        if (showGrid) {
+                                                // Enable transparency
+                                                glEnable(GL_BLEND);
+                                                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                                                // Use grid shader
+                                                gridShader.use();
+
+                                                // Set standard uniforms
+                                                gridShader.setMat4("projection", projection);
+                                                gridShader.setMat4("view", view);
+                                                gridShader.setMat4("model", glm::mat4(1.0f));
+
+                                                // Draw the grid
+                                                gridModel.Draw(gridShader);
+
+                                                // Restore OpenGL state
+                                                glDisable(GL_BLEND);
+                                        }
+
+                                        // Render ImGui interface
+                                        renderImGui(ourModel, window);
+
+                                        // Swap buffers and poll events
+                                        glfwSwapBuffers(window);
+                                        glfwPollEvents();
+                                }
+
+                                // Cleanup ImGui
+                                ImGui_ImplOpenGL3_Shutdown();
+                                ImGui_ImplGlfw_Shutdown();
+                                ImGui::DestroyContext();
+
+                                // Terminate GLFW
+                                glfwTerminate();
+                                return -1;
+                        }
+                        glfwMakeContextCurrent(window);
+                        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+                        glfwSetCursorPosCallback(window, mouse_callback);
+                        glfwSetMouseButtonCallback(window, mouse_button_callback);
+                        glfwSetScrollCallback(window, scroll_callback);
+                        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+                        glewExperimental = GL_TRUE; // Needed for core profile
+                        if (glewInit() != GLEW_OK) {
+                                std::cout << "Failed to initialize GLEW" << std::endl;
+                                return -1;
+                        }
+
+                        // Print OpenGL version info
+                        std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+                        std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
+                        // Configure global OpenGL state
+                        glEnable(GL_DEPTH_TEST);
+
+                        // Setup ImGui
+                        setupImGui(window);
+
+                        // Load shaders
+                        std::cout << "Attempting to load shader from: shaders/standard.frag" << std::endl;
+                        Shader standardShader("../shaders/standard.vert", "../shaders/standard.frag");
+                        Shader celShader("../shaders/Cel.vert", "../shaders/Cel.frag");
+                        Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
+                        Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
+                        Shader gridShader("../shaders/grid.vert", "../shaders/grid.frag");
+                        Shader outlineShader("shaders/outline.vert", "shaders/outline.frag");
+
+                        shaders.push_back(standardShader);
+                        shaders.push_back(celShader);
+                        shaders.push_back(watercolorShader);
+                        shaders.push_back(sketchShader);
+
+                        Model gridModel;
+                        Model ourModel;
+
+                        gridModel = Model();
+                        gridModel.createGrid(5.0f, 100);
+
+                        camera.SetOrbitTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+
+                        // Render loop
+                        while (!glfwWindowShouldClose(window)) {
+                                // Per-frame time logic
+                                float currentFrame = static_cast<float>(glfwGetTime());
+                                deltaTime = currentFrame - lastFrame;
+                                lastFrame = currentFrame;
+
+                                // Input
+                                processInput(window);
+
+                                // Render
+                                if (useWhiteBackground || currentShader == 2 || currentShader == 3) {
+                                        glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // White
+                                } else {
+                                        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark gray / black
+                                }
+
+                                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                                // Activate shader
+                                shaders[currentShader].use();
+
+                                // Set shader uniforms
+                                glm::mat4 projection = glm::perspective(
+                                        glm::radians(camera.Zoom),
+                                        static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100.0f);
+                                glm::mat4 view = camera.GetViewMatrix();
+                                shaders[currentShader].setMat4("projection", projection);
+                                shaders[currentShader].setMat4("view", view);
+
+                                // Light properties
+                                glm::vec3 lightPos(lightPosX, lightPosY, lightPosZ);
+                                if (fixed_lighting) {
+                                        lightPos = camera.Position + camera.Front * 2.0f;
+                                }
+
+                                shaders[currentShader].setVec3("lightPos", lightPos);
+                                shaders[currentShader].setVec3("viewPos", camera.Position);
+                                shaders[currentShader].setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+
+                                // Set custom lighting parameters from ImGui
+                                shaders[currentShader].setFloat("ambientStrength", ambientStrength);
+                                shaders[currentShader].setFloat("specularStrength", specularStrength);
+                                shaders[currentShader].setFloat("shininess", shininess);
+
+                                // Optional: Pass time to shader for animation effects
+                                shaders[currentShader].setFloat("time", currentFrame);
+
+                                // Render the model
+                                glm::mat4 model = modelTransform.GetModelMatrix();
+                                shaders[currentShader].setMat4("model", model);
+
                                 if (!ourModel.meshes.empty()) {
-                                        ourModel.meshes[0].textures.clear();
-                                        textureLoaded = false;
-                                        texturePath = "";
-                                        std::cout << "Texture removed from model" << std::endl;
-                                        Texture newTexture;
-                                        ourModel.replaceTextures({newTexture});
+                                        if (textureLoaded) {
+                                                // Texture is loaded
+                                                ourModel.meshes[0].textures[0].bind(0);
+                                                shaders[currentShader].setInt("hasTexture", 1);
+                                                shaders[currentShader].setInt("texture_diffuse1", 0);
+                                        } else {
+                                                // No texture, use solid color
+                                                // std::cout << "no texture" << std::endl;
+                                                shaders[currentShader].setInt("hasTexture", 0);
+                                        }
                                 }
+
+                                // Set object color from ImGui
+                                shaders[currentShader].setVec3("objectColor",
+                                                               glm::vec3(objectColor.x, objectColor.y, objectColor.z));
+                                // shaders[currentShader].setVec3("objectColor", glm::vec3(0.7, 0.1, 0.1));
+
+                                ourModel.Draw(shaders[currentShader]);
+
+                                if (showGrid) {
+                                        // Enable transparency
+                                        glEnable(GL_BLEND);
+                                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                                        // Use grid shader
+                                        gridShader.use();
+
+                                        // Set standard uniforms
+                                        gridShader.setMat4("projection", projection);
+                                        gridShader.setMat4("view", view);
+                                        gridShader.setMat4("model", glm::mat4(1.0f));
+
+                                        // Draw the grid
+                                        gridModel.Draw(gridShader);
+
+                                        // Restore OpenGL state
+                                        glDisable(GL_BLEND);
+                                }
+
+                                // Render ImGui interface
+                                renderImGui(ourModel, window);
+
+                                // Swap buffers and poll events
+                                glfwSwapBuffers(window);
+                                glfwPollEvents();
                         }
 
-                        // Shader selection
-                        const char* shaderNames[] = {"Standard", "Cel", "Watercolor", "Sketch"};
-                        ImGui::Combo("Shader", &currentShader, shaderNames, IM_ARRAYSIZE(shaderNames));
+                        // Cleanup ImGui
+                        ImGui_ImplOpenGL3_Shutdown();
+                        ImGui_ImplGlfw_Shutdown();
+                        ImGui::DestroyContext();
+
+                        // Terminate GLFW
+                        glfwTerminate();
+                        return 0;
                 }
-
-                ImGui::Separator();
-                // ImGui::Checkbox("Show Demo Window", &showDemoWindow);
-
-                ImGui::End();
-        }
-
-        if (showToolPanel) {
-                ImGui::Begin(" ");
-
-                ImGui::SetWindowPos(ImVec2(20, 10.0f));    // adjust position
-                ImGui::SetWindowSize(ImVec2(100, 400.0f)); // adjust position
-
-                ImGui::Text("Camera");
-                if (SelectableButton("Pan", currentTool == CAMERA_PAN))
-                        currentTool = CAMERA_PAN;
-                if (SelectableButton("Orbit", currentTool == CAMERA_ORBIT))
-                        currentTool = CAMERA_ORBIT;
-                if (SelectableButton("Rotate", currentTool == CAMERA_ROTATE))
-                        currentTool = CAMERA_ROTATE;
-                if (SelectableButton("Tilt", currentTool == CAMERA_TILT))
-                        currentTool = CAMERA_TILT;
-                if (SelectableButton("Roll", currentTool == CAMERA_ROLL))
-                        currentTool = CAMERA_ROLL;
-                if (SelectableButton("Zoom", currentTool == CAMERA_ZOOM))
-                        currentTool = CAMERA_ZOOM;
-                ImGui::Text("Model");
-                if (SelectableButton("Scale", currentTool == MODEL_SCALE))
-                        currentTool = MODEL_SCALE;
-                if (SelectableButton("Rotate X", currentTool == MODEL_ROTATE_X))
-                        currentTool = MODEL_ROTATE_X;
-                if (SelectableButton("Rotate Y", currentTool == MODEL_ROTATE_Y))
-                        currentTool = MODEL_ROTATE_Y;
-                if (SelectableButton("Rotate Z", currentTool == MODEL_ROTATE_Z))
-                        currentTool = MODEL_ROTATE_Z;
-                if (SelectableButton("Translate X", currentTool == MODEL_TRANSLATE_X))
-                        currentTool = MODEL_TRANSLATE_X;
-                if (SelectableButton("Translate Y", currentTool == MODEL_TRANSLATE_Y))
-                        currentTool = MODEL_TRANSLATE_Y;
-                if (SelectableButton("Translate Z", currentTool == MODEL_TRANSLATE_Z))
-                        currentTool = MODEL_TRANSLATE_Z;
-
-                // ImGui::EndChild();
-                ImGui::End();
-        }
-
-        // Render ImGui
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-int main(int argc, char** argv) {
-        std::string modelPath = "../models/Baby_Groot_Funko_Pop.stl";
-        if (argc > 1) {
-                modelPath = argv[1];
-        }
-
-        // Initialize GLFW
-        if (!glfwInit()) {
-                std::cerr << "Failed to initialize GLFW" << std::endl;
-                return -1;
-        }
-
-        // Configure GLFW
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        // Create window
-        GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "NPR Renderer", NULL, NULL);
-        if (window == NULL) {
-                std::cout << "Failed to create GLFW window" << std::endl;
-                glfwTerminate();
-                return -1;
-        }
-        glfwMakeContextCurrent(window);
-        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-        glfwSetCursorPosCallback(window, mouse_callback);
-        glfwSetMouseButtonCallback(window, mouse_button_callback);
-        glfwSetScrollCallback(window, scroll_callback);
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-        glewExperimental = GL_TRUE; // Needed for core profile
-        if (glewInit() != GLEW_OK) {
-                std::cout << "Failed to initialize GLEW" << std::endl;
-                return -1;
-        }
-
-        // Print OpenGL version info
-        std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-        std::cout << "GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-
-        // Configure global OpenGL state
-        glEnable(GL_DEPTH_TEST);
-
-        // Setup ImGui
-        setupImGui(window);
-
-        // Load shaders
-        std::cout << "Attempting to load shader from: shaders/standard.frag" << std::endl;
-        Shader standardShader("../shaders/standard.vert", "../shaders/standard.frag");
-        Shader celShader("../shaders/Cel.vert", "../shaders/Cel.frag");
-        Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
-        Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
-        Shader gridShader("../shaders/grid.vert", "../shaders/grid.frag");
-
-        shaders.push_back(standardShader);
-        shaders.push_back(celShader);
-        shaders.push_back(watercolorShader);
-        shaders.push_back(sketchShader);
-
-        Texture noiseTexture, paperTexture;
-        if (!noiseTexture.loadTextureFromFile("../textures/noise.png"))
-                std::cerr << "Failed to load noise texture" << std::endl;
-        if (!paperTexture.loadTextureFromFile("../textures/paper.png"))
-                std::cerr << "Failed to load paper texture" << std::endl;
-
-        Model gridModel;
-        Model ourModel;
-
-        gridModel = Model();
-        gridModel.createGrid(5.0f, 100);
-
-        camera.SetOrbitTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-
-        // Render loop
-        while (!glfwWindowShouldClose(window)) {
-                // Per-frame time logic
-                float currentFrame = static_cast<float>(glfwGetTime());
-                deltaTime = currentFrame - lastFrame;
-                lastFrame = currentFrame;
-
-                // Input
-                processInput(window);
-
-                // Render
-                if (currentShader == 2 || currentShader == 3)
-                        glClearColor(1.0, 1.0, 1.0, 0.0);
-                else
-                        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-                // Activate shader
-                shaders[currentShader].use();
-
-                // Set shader uniforms
-                glm::mat4 projection =
-                        glm::perspective(glm::radians(camera.Zoom),
-                                         static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100.0f);
-                glm::mat4 view = camera.GetViewMatrix();
-                shaders[currentShader].setMat4("projection", projection);
-                shaders[currentShader].setMat4("view", view);
-
-                // Light properties
-                glm::vec3 lightPos(lightPosX, lightPosY, lightPosZ);
-                if (fixed_lighting) {
-                        lightPos = camera.Position + camera.Front * 2.0f;
-                }
-
-                shaders[currentShader].setVec3("lightPos", lightPos);
-                shaders[currentShader].setVec3("viewPos", camera.Position);
-                shaders[currentShader].setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-
-                // Set custom lighting parameters from ImGui
-                shaders[currentShader].setFloat("ambientStrength", ambientStrength);
-                shaders[currentShader].setFloat("specularStrength", specularStrength);
-                shaders[currentShader].setFloat("shininess", shininess);
-
-                // Optional: Pass time to shader for animation effects
-                shaders[currentShader].setFloat("time", currentFrame);
-
-                // Render the model
-                glm::mat4 model = modelTransform.GetModelMatrix();
-                shaders[currentShader].setMat4("model", model);
-
-                if (!ourModel.meshes.empty()) {
-
-                        if (textureLoaded) {
-                                // Texture is loaded
-                                ourModel.meshes[0].textures[0].bind(0);
-                                shaders[currentShader].setInt("hasTexture", 1);
-                                shaders[currentShader].setInt("texture_diffuse1", 0);
-                        } else {
-                                // No texture, use solid color
-                                // std::cout << "no texture" << std::endl;
-                                shaders[currentShader].setInt("hasTexture", 0);
-                        }
-
-                        if (currentShader == 2) {
-                                noiseTexture.bind(1);
-                                paperTexture.bind(1);
-                                shaders[currentShader].setInt("u_noise_texture", 1);
-                                shaders[currentShader].setInt("u_paper_texture", 2);
-
-                                shaders[currentShader].setVec3("u_color1", glm::vec3(col1.x, col1.y, col1.z));
-                                shaders[currentShader].setVec3("u_color2", glm::vec3(col2.x, col2.y, col2.z));
-                                shaders[currentShader].setVec3("u_color3", glm::vec3(col3.x, col3.y, col3.z));
-                                shaders[currentShader].setVec3("u_color4", glm::vec3(col4.x, col4.y, col4.z));
-
-                                shaders[currentShader].setFloat("u_edge_intensity", edgeIntensityValue);
-                                shaders[currentShader].setFloat("u_edge_noise", edgeNoiseValue);
-                                shaders[currentShader].setFloat("u_granulation", granulationValue);
-                                shaders[currentShader].setFloat("u_paper_visibility", paperVisibilityValue);
-                                shaders[currentShader].setFloat("u_transparency", transparencyValue);
-
-                                glEnable(GL_BLEND);
-                                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                        }
-                }
-
-                // Set object color from ImGui
-                shaders[currentShader].setVec3("objectColor", glm::vec3(objectColor.x, objectColor.y, objectColor.z));
-                // shaders[currentShader].setVec3("objectColor", glm::vec3(0.7, 0.1, 0.1));
-
-                ourModel.Draw(shaders[currentShader]);
-
-                if (showGrid) {
-                        // Enable transparency
-                        glEnable(GL_BLEND);
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-                        // Use grid shader
-                        gridShader.use();
-
-                        // Set standard uniforms
-                        gridShader.setMat4("projection", projection);
-                        gridShader.setMat4("view", view);
-                        gridShader.setMat4("model", glm::mat4(1.0f));
-
-                        // Draw the grid
-                        gridModel.Draw(gridShader);
-
-                        // Restore OpenGL state
-                        glDisable(GL_BLEND);
-                }
-
-                // Render ImGui interface
-                renderImGui(ourModel, window);
-
-                // Swap buffers and poll events
-                glfwSwapBuffers(window);
-                glfwPollEvents();
-        }
-
-        // Cleanup ImGui
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
-
-        // Terminate GLFW
-        glfwTerminate();
-        return 0;
-}
