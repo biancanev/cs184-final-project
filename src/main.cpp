@@ -431,6 +431,8 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
                     textureLoaded = false;
                     texturePath = "";
                     std::cout << "Texture removed from model" << std::endl;
+                    Texture newTexture;
+                    ourModel.replaceTextures({newTexture});
                 }
             }
             
