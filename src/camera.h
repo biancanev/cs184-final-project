@@ -68,6 +68,7 @@ public:
     void ProcessMouseMovementTilt(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessMouseMovementRoll(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessMousePan(float xoffset, float yoffset);
+    void ResetOrientation();
 
 private:
     // Calculates the front vector from the Camera's (updated) Euler Angles

@@ -14,17 +14,17 @@ uniform float time;                   // Keep this uniform even if we don't use 
 
 // Enhanced grayscale shader parameters with stronger hatching
 uniform vec3 u_light_color = vec3(1.0, 1.0, 1.0);      
-uniform vec3 u_dark_color = vec3(0.0, 0.0, 0.0);       // Pure black for outlines
+uniform vec3 u_dark_color = vec3(0.15, 0.15, 0.15);       
 uniform vec3 u_mid_color = vec3(0.75, 0.75, 0.75);     // Lighter mid-color
-uniform float u_stroke_density = 180.0;                // Higher density for more prominent lines
+uniform float u_stroke_density = 200.0;                // Higher density for more prominent lines
 uniform float u_line_thickness = 0.25;                 // Thicker lines for visibility
 uniform float u_outline_thickness = 0.7;               
 uniform float u_tone_strength = 0.5;                   // Lower tone strength to make hatching more visible
 uniform float u_detail_enhancement = 4.0;    
 uniform float u_edge_contrast = 2.0;            
 uniform float u_stroke_randomness = 0.5;              
-uniform float u_hatching_opacity = 0.9;                // Higher opacity for stronger hatching
-uniform float u_gradient_strength = 2.2;               // Steeper gradient
+uniform float u_hatching_opacity = 0.8;                // Higher opacity for stronger hatching
+uniform float u_gradient_strength = 3.2;               // Steeper gradient
 
 uniform float ambientStrength;
 uniform float specularStrength;
@@ -44,13 +44,13 @@ float lineMask(float coord, float thickness, vec2 pos) {
     // Add randomness to line thickness
     float thicknessVar = thickness * (1.0 + (noise - 0.5) * u_stroke_randomness * 0.6);
     
-    // Add more pronounced waviness to the lines - INCREASED EFFECT
+    // Add more pronounced waviness to the lines
     float waviness = sin(pos.y * 50.0 + cos(pos.x * 30.0)) * u_stroke_randomness * 0.25;
     waviness += cos(pos.y * 35.0 + sin(pos.x * 20.0)) * u_stroke_randomness * 0.12;
     
     float lineCenter = fract(coord + noiseOffset + waviness);
     
-    // Create uneven line edges for hand-drawn feel - ENHANCED
+    // Create uneven line edges for hand-drawn feel 
     float edgeNoise1 = texture(u_noise_texture, pos * 80.0).r * 0.06 * u_stroke_randomness;
     float edgeNoise2 = texture(u_noise_texture, pos * 90.0).r * 0.06 * u_stroke_randomness;
     
@@ -158,8 +158,8 @@ void main() {
     // Adjust thresholds for faster falloff
     float thresh1 = 0.98;  // Almost white areas still get very light hatching
     float thresh2 = 0.7;   // Higher threshold for second layer
-    float thresh3 = 0.4;   // Medium threshold
-    float thresh4 = 0.2;   // Dark areas threshold
+    float thresh3 = 0.25;   // Medium threshold
+    float thresh4 = 0.1;   // Dark areas threshold
     
     // First hatching layer - even in very light areas
     if (enhancedDiffuse < thresh1) {
