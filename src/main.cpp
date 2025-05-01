@@ -52,11 +52,13 @@ bool showGrid = true;
 
 ImVec4 objectColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 float ambientStrength = 0.1f;
+float outlineThickness = 0.03f;
 float specularStrength = 0.5f;
 float shininess = 32.0f;
 float lightPosX = 1.2f;
 float lightPosY = 1.0f;
 float lightPosZ = 2.0f;
+bool useWhiteBackground = false;
 
 std::string modelPath = "";
 bool modelLoaded = false;
@@ -378,6 +380,11 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
             // << " B=" << objectColor.z 
             // << std::endl;
 
+            // ImGui::SetNextItemWidth(SLIDER_WIDTH);
+            // ImGui::SliderFloat("Outline Thickness", &outlineThickness, 0.0f, 0.1f, "%.3f");
+
+            ImGui::Checkbox("White Background", &useWhiteBackground);
+
             // Texture picker
             ImGui::Text("Available Textures:");
             
@@ -539,6 +546,7 @@ int main(int argc, char **argv) {
     Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
     Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
     Shader gridShader("../shaders/grid.vert", "../shaders/grid.frag");
+    // Shader outlineShader("shaders/outline.vert", "shaders/outline.frag");
     
     shaders.push_back(standardShader);
     shaders.push_back(celShader);
@@ -565,9 +573,10 @@ int main(int argc, char **argv) {
         processInput(window);
 
         // Render
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        if (currentShader == 2 || currentShader == 3) {
-            glClearColor(1.0, 1.0, 1.0, 0.0);
+        if (useWhiteBackground || currentShader == 2 || currentShader == 3) {
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);  // White
+        } else {
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);  // Dark gray / black
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
