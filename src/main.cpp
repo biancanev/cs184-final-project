@@ -380,8 +380,8 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
             // << " B=" << objectColor.z 
             // << std::endl;
 
-            // ImGui::SetNextItemWidth(SLIDER_WIDTH);
-            // ImGui::SliderFloat("Outline Thickness", &outlineThickness, 0.0f, 0.1f, "%.3f");
+            ImGui::SetNextItemWidth(SLIDER_WIDTH);
+            ImGui::SliderFloat("Outline Thickness", &outlineThickness, 0.0f, 0.1f, "%.3f");
 
             ImGui::Checkbox("White Background", &useWhiteBackground);
 
@@ -546,7 +546,7 @@ int main(int argc, char **argv) {
     Shader watercolorShader("../shaders/standard.vert", "../shaders/Watercolor.frag");
     Shader sketchShader("../shaders/standard.vert", "../shaders/Sketch.frag");
     Shader gridShader("../shaders/grid.vert", "../shaders/grid.frag");
-    // Shader outlineShader("shaders/outline.vert", "shaders/outline.frag");
+    Shader outlineShader("shaders/outline.vert", "shaders/outline.frag");
     
     shaders.push_back(standardShader);
     shaders.push_back(celShader);
