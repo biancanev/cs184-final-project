@@ -11,6 +11,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
+#include "transform.h"
 
 #include <iostream>
 #include <string>
@@ -27,6 +28,7 @@ const unsigned int SLIDER_WIDTH = 200;
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -15.0f);
+Transform modelTransform;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -46,7 +48,7 @@ std::vector<Shader> shaders;
 bool showDemoWindow = false;
 bool showControlPanel = true;
 bool showToolPanel = true;
-bool showGrid = false;
+bool showGrid = true;
 
 ImVec4 objectColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 float ambientStrength = 0.1f;
@@ -59,15 +61,26 @@ float lightPosZ = 2.0f;
 std::string modelPath = "";
 bool modelLoaded = false;
 
-enum Camera_Mode {
+std::string texturePath = "";
+bool textureLoaded = false;
+
+enum Tool_Mode {
     CAMERA_PAN,
     CAMERA_ORBIT,
     CAMERA_ROTATE,
     CAMERA_TILT,
     CAMERA_ZOOM,
-    CAMERA_ROLL
+    CAMERA_ROLL,
+    MODEL_SCALE,
+    MODEL_TRANSLATE_X,
+    MODEL_TRANSLATE_Y,
+    MODEL_TRANSLATE_Z,
+    MODEL_ROTATE_X,
+    MODEL_ROTATE_Y,
+    MODEL_ROTATE_Z
 };
-Camera_Mode currentCam = CAMERA_PAN;
+Tool_Mode currentTool = CAMERA_PAN;
+
 
 bool SelectableButton(const char* label, bool isSelected) {
     if (isSelected) {
@@ -114,20 +127,41 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
         // Check if CTRL key is held for panning
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || 
             glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS || 
-            currentCam ==  CAMERA_PAN) {
+            currentTool ==  CAMERA_PAN) {
             // Pan the camera
             camera.ProcessMousePan(xoffset, yoffset);
-        } else if (currentCam ==  CAMERA_ORBIT) {
+        } else if (currentTool ==  CAMERA_ORBIT) {
             // Orbit the camera
             camera.ProcessMouseMovementOrbit(xoffset, yoffset);
-        } else if (currentCam ==  CAMERA_ROTATE) {
+        } else if (currentTool ==  CAMERA_ROTATE) {
             camera.ProcessMouseMovementRotate(xoffset, yoffset);
-        } else if (currentCam ==  CAMERA_TILT) {
+        } else if (currentTool ==  CAMERA_TILT) {
             camera.ProcessMouseMovementTilt(xoffset, yoffset);
-        } else if (currentCam ==  CAMERA_ZOOM) {
+        } else if (currentTool ==  CAMERA_ZOOM) {
             camera.ProcessMouseScroll(yoffset * 0.2);
-        } else if (currentCam ==  CAMERA_ROLL) {
+        } else if (currentTool ==  CAMERA_ROLL) {
             camera.ProcessMouseMovementRoll(xoffset, yoffset);
+        } else if (currentTool ==  MODEL_SCALE) {
+            modelTransform.SetOperation(SCALE_UNIFORM);
+            modelTransform.ProcessMouseMovement(xoffset, yoffset);
+        } else if (currentTool ==  MODEL_ROTATE_X) {
+            modelTransform.SetOperation(ROTATE_X);
+            modelTransform.ProcessMouseMovement(xoffset, yoffset);
+        } else if (currentTool ==  MODEL_ROTATE_Y) {
+            modelTransform.SetOperation(ROTATE_Y);
+            modelTransform.ProcessMouseMovement(xoffset, yoffset);
+        } else if (currentTool ==  MODEL_ROTATE_Z) {
+            modelTransform.SetOperation(ROTATE_Z);
+            modelTransform.ProcessMouseMovement(xoffset, yoffset);
+        }  else if (currentTool ==  MODEL_TRANSLATE_X) {
+            modelTransform.SetOperation(TRANSLATE_X);
+            modelTransform.ProcessMouseMovement(xoffset, yoffset);
+        }  else if (currentTool ==  MODEL_TRANSLATE_Y) {
+            modelTransform.SetOperation(TRANSLATE_Y);
+            modelTransform.ProcessMouseMovement(xoffset, yoffset);
+        }  else if (currentTool ==  MODEL_TRANSLATE_Z) {
+            modelTransform.SetOperation(TRANSLATE_Z);
+            modelTransform.ProcessMouseMovement(xoffset, yoffset);
         }
     }
 }
@@ -200,6 +234,7 @@ bool loadModelFile(Model& model, const std::string& path) {
     try {
         model = Model(path);
         std::cout << "Model loaded successfully: " << path << std::endl;
+        camera.ResetOrientation();
         return true;
     } catch (const std::exception& e) {
         std::cerr << "Failed to load model: " << e.what() << std::endl;
@@ -327,8 +362,77 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
         }
         
         if (ImGui::CollapsingHeader("Appearance", ImGuiTreeNodeFlags_DefaultOpen)) {
+            char texInputBuffer[256] = "";
+            strncpy(texInputBuffer, texturePath.c_str(), sizeof(texInputBuffer) - 1);
             // Color picker
             ImGui::ColorEdit3("Object Color", (float*)&objectColor);
+            // std::cout << "Color: R=" << objectColor.x 
+            // << " G=" << objectColor.y 
+            // << " B=" << objectColor.z 
+            // << std::endl;
+
+            // Texture picker
+            ImGui::Text("Available Textures:");
+            
+            std::string textureDir = "../textures";
+            
+            // Scan the directory
+            try {
+                if (fs::exists(textureDir) && fs::is_directory(textureDir)) {
+                    for (const auto& entry : fs::directory_iterator(textureDir)) {
+                        std::string extension = entry.path().extension().string();
+                        if (extension == ".jpg" || extension == ".jpeg" || extension == ".png") {
+                            
+                            std::string filename = entry.path().filename().string();
+                            if (ImGui::Button(filename.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+                                texturePath = entry.path().string();
+                            }
+                        }
+                    }
+                } else {
+                    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 
+                                    "Textures directory not found: %s", textureDir.c_str());
+                }
+            } catch (const std::exception& e) {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 
+                                "Error scanning textures directory: %s", e.what());
+            }
+
+            ImGui::Text("Enter texture path:");
+            if (ImGui::InputText("##texturepath", texInputBuffer, sizeof(texInputBuffer))) {
+                texturePath = texInputBuffer;
+            }
+            
+            if (ImGui::Button("Load Color/Texture")) {
+                if (!texturePath.empty()) {
+                    Texture newTexture;
+                    
+                    // Load the texture as a diffuse texture
+                    if (newTexture.loadTextureFromFile(texturePath)) {
+                        // Replace textures in the model
+                        ourModel.replaceTextures({newTexture});
+                        
+                        textureLoaded = true;
+                        std::cout << "Texture loaded and applied to model: " << texturePath << std::endl;
+                    } else {
+                        std::cerr << "Failed to load texture: " << texturePath << std::endl;
+                        textureLoaded = false;
+                    }
+                } else {
+                    Texture newTexture;
+                    ourModel.replaceTextures({newTexture});
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Remove Texture")) {
+                // Clear textures from the model
+                if (!ourModel.meshes.empty()) {
+                    ourModel.meshes[0].textures.clear();
+                    textureLoaded = false;
+                    texturePath = "";
+                    std::cout << "Texture removed from model" << std::endl;
+                }
+            }
             
             // Shader selection
             const char* shaderNames[] = { "Standard", "Cel", "Watercolor", "Sketch" };
@@ -345,16 +449,23 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
         ImGui::Begin(" ");
 
         ImGui::SetWindowPos(ImVec2(20, 10.0f)); // adjust position
-        ImGui::SetWindowSize(ImVec2(80, 200.0f)); // adjust position
+        ImGui::SetWindowSize(ImVec2(100, 400.0f)); // adjust position
 
         ImGui::Text("Camera");
-        if (SelectableButton("Pan", currentCam == CAMERA_PAN))       currentCam = CAMERA_PAN;
-        if (SelectableButton("Orbit", currentCam == CAMERA_ORBIT))   currentCam = CAMERA_ORBIT;
-        if (SelectableButton("Rotate", currentCam == CAMERA_ROTATE)) currentCam = CAMERA_ROTATE;
-        if (SelectableButton("Tilt", currentCam == CAMERA_TILT))     currentCam = CAMERA_TILT;
-        if (SelectableButton("Roll", currentCam == CAMERA_ROLL))     currentCam = CAMERA_ROLL;
-        if (SelectableButton("Zoom", currentCam == CAMERA_ZOOM))     currentCam = CAMERA_ZOOM;
-        
+        if (SelectableButton("Pan", currentTool == CAMERA_PAN))       currentTool = CAMERA_PAN;
+        if (SelectableButton("Orbit", currentTool == CAMERA_ORBIT))   currentTool = CAMERA_ORBIT;
+        if (SelectableButton("Rotate", currentTool == CAMERA_ROTATE)) currentTool = CAMERA_ROTATE;
+        if (SelectableButton("Tilt", currentTool == CAMERA_TILT))     currentTool = CAMERA_TILT;
+        if (SelectableButton("Roll", currentTool == CAMERA_ROLL))     currentTool = CAMERA_ROLL;
+        if (SelectableButton("Zoom", currentTool == CAMERA_ZOOM))     currentTool = CAMERA_ZOOM;
+        ImGui::Text("Model");
+        if (SelectableButton("Scale", currentTool == MODEL_SCALE))       currentTool = MODEL_SCALE;
+        if (SelectableButton("Rotate X", currentTool == MODEL_ROTATE_X))       currentTool = MODEL_ROTATE_X;
+        if (SelectableButton("Rotate Y", currentTool == MODEL_ROTATE_Y))       currentTool = MODEL_ROTATE_Y;
+        if (SelectableButton("Rotate Z", currentTool == MODEL_ROTATE_Z))       currentTool = MODEL_ROTATE_Z;
+        if (SelectableButton("Translate X", currentTool == MODEL_TRANSLATE_X))       currentTool = MODEL_TRANSLATE_X;
+        if (SelectableButton("Translate Y", currentTool == MODEL_TRANSLATE_Y))       currentTool = MODEL_TRANSLATE_Y;
+        if (SelectableButton("Translate Z", currentTool == MODEL_TRANSLATE_Z))       currentTool = MODEL_TRANSLATE_Z;
 
         // ImGui::EndChild();
         ImGui::End();
@@ -482,14 +593,27 @@ int main(int argc, char **argv) {
         shaders[currentShader].setFloat("time", currentFrame);
 
         // Render the model
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 model = modelTransform.GetModelMatrix();
         shaders[currentShader].setMat4("model", model);
         
+
+        if (!ourModel.meshes.empty()) {
+            if (textureLoaded) {
+                // Texture is loaded
+                ourModel.meshes[0].textures[0].bind(0);
+                shaders[currentShader].setInt("hasTexture", 1);
+                shaders[currentShader].setInt("texture_diffuse1", 0);
+            } else {
+                // No texture, use solid color
+                // std::cout << "no texture" << std::endl;
+                shaders[currentShader].setInt("hasTexture", 0);
+            }
+        }
+
         // Set object color from ImGui
-        shaders[currentShader].setVec3("objectColor", 
-            glm::vec3(objectColor.x, objectColor.y, objectColor.z));
+        // shaders[currentShader].setVec3("objectColor", glm::vec3(objectColor.x, objectColor.y, objectColor.z));
+        shaders[currentShader].setVec3("objectColor", glm::vec3(0.7, 0.1, 0.1));
+
         
         ourModel.Draw(shaders[currentShader]);
 

@@ -41,7 +41,7 @@ public:
     void Draw(Shader &shader);
 
     void createGrid(float size, int subdivisions);
-
+    void replaceTextures(const std::vector<Texture>& newTextures);
     
 private:
     // Loads a model with supported ASSIMP extensions from file
