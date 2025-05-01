@@ -5,113 +5,99 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
 
-// uniform vec3 lightPos;
-// uniform vec3 viewPos;
-// uniform vec3 lightColor;
-uniform vec3 objectColor;
-uniform sampler2D u_noise_texture;      // Noise texture for paper grain
-uniform sampler2D u_paper_texture;      // Optional actual paper texture
+// Standard Phong-style lighting (from standard.frag)
+uniform vec3 lightPos;
+uniform vec3 viewPos;
+uniform vec3 lightColor;
 
-// Multiple colors for watercolor palette
-uniform vec3 u_color1 = vec3(0.9, 0.3, 0.2);  // Warm red
-uniform vec3 u_color2 = vec3(0.2, 0.5, 0.8);  // Mid blue
-uniform vec3 u_color3 = vec3(0.1, 0.7, 0.4);  // Seafoam green
-uniform vec3 u_color4 = vec3(0.8, 0.6, 0.1);  // Golden yellow
+// Paper & noise textures
+uniform sampler2D u_noise_texture;  
+uniform sampler2D u_paper_texture;  
 
-// True watercolor effect parameters
-uniform float u_edge_intensity = 2.5;      // Edge darkening intensity
-uniform float u_paper_visibility = 0.3;    // How much paper shows through
-uniform float u_granulation = 0.7;         // Pigment separation amount
-uniform float u_edge_noise = 0.8;          // Noisy edge detail
-uniform float u_transparency = 0.85;       // Overall paint transparency
+// Watercolor palette
+uniform vec3 u_color1;  // e.g. vec3(0.9, 0.3, 0.2);
+uniform vec3 u_color2;  // e.g. vec3(0.2, 0.5, 0.8);
+uniform vec3 u_color3;  // e.g. vec3(0.1, 0.7, 0.4);
+uniform vec3 u_color4;  // e.g. vec3(0.8, 0.6, 0.1);
 
-vec3 ramp_col(float t) {
-    t = clamp(t, 0.0, 1.0);
-    if (t < 1.0/3.0) {
-        return mix(u_color1, u_color2, t * 3.);
-    } else if (t < 2.0/3.0) {
-        return mix(u_color2, u_color3, (t - 1.0/3.0) * 3.);
-    } else {
-        return mix(u_color3, u_color4, (t - 2.0/3.0) * 3.);
-    }
+// Artistic parameters
+uniform float u_edge_intensity;    // edge darkening strength
+uniform float u_paper_visibility;  // how much paper shows through
+uniform float u_granulation;       // pigment separation
+uniform float u_edge_noise;        // noisy edge detail
+uniform float u_transparency;      // overall paint opacity
+uniform float u_dilute_strength;
+uniform float u_bleed_strength;
+uniform float u_edge_width;
+uniform float u_edge_darkness;
+
+uniform float u_overlay_threshold;
+
+vec3 layer1colr(float f) {
+    return mix(u_color1, u_color2, f);
 }
 
-void main() {
-    // Get position and normal data
-    vec3 N = normalize(Normal);
-    vec2 uv = TexCoords;
-    if (uv.x < 1e-3 && uv.y < 1e-3) {
-        uv = FragPos.xz * 0.1;
-    }
+vec3 layer2colr(float f) {
+    return mix(u_color3, u_color4, f);
+}
 
-    vec3 fragPos = FragPos;
-    vec3 viewDir = normalize(- FragPos);
-    
-    // Multi-layered noise for complex watercolor effects
-    float noise1 = texture(u_noise_texture, uv * 2.5).r;
-    float noise2 = texture(u_noise_texture, uv * 8.0).r;
-    float noise3 = texture(u_noise_texture, uv * 20.0).r;
-    
-    // Paper texture (either from actual texture or generated)
-    float paper = mix(0.8, 1.0, texture(u_paper_texture, uv * 3.0).r);
-    
-    // CRITICAL: Edge detection for watercolor edge darkening
-    float edge = 1.0 - abs(dot(N, normalize(-FragPos)));
-    edge = pow(edge, 1.7) * u_edge_intensity;
-    
-    // Create noisy edges (essential for watercolor look)
-    edge *= (1.0 + (noise3 - 0.5) * u_edge_noise);
-    
-    // Create watercolor color blending with visible paper texture    
-    float hue = clamp(N.y * .5 + .5 + (noise1 - .5) * .1, 0.0, 1.0);
-    vec3 color = ramp_col(hue);
-    
-    // Create color regions with smooth, irregular transitions
-    if (hue < 0.33) {
-        color = mix(u_color1, u_color2, smoothstep(0.0, 0.5, hue / 0.33 + noise2 * 0.2));
-    } else if (hue < 0.66) {
-        color = mix(u_color2, u_color3, smoothstep(0.0, 0.5, (hue - 0.33) / 0.33 + noise1 * 0.2));
-    } else {
-        color = mix(u_color3, u_color4, smoothstep(0.0, 0.5, (hue - 0.66) / 0.33 + noise3 * 0.2));
-    }
-    
-    float redGranulation = noise3 * u_granulation * 0.6;
-    float greenGranulation = noise2 * u_granulation * 0.5;
-    float blueGranulation = noise1 * u_granulation * 0.7;
-    
-    color.r *= (1.0 - redGranulation * (1.0 - paper));
-    color.g *= (1.0 - greenGranulation * (1.0 - paper));
-    color.b *= (1.0 - blueGranulation * (1.0 - paper));
-    // color.r *= 1.0 - noise3 * u_granulation * (1.0 - paper);
-    // color.g *= 1.0 - noise2 * u_granulation * (1.0 - paper);
-    // color.b *= 1.0 - noise1 * u_granulation * (1.0 - paper);
-    
-    // Add paper visibility - key watercolor characteristic
-    color = mix(vec3(paper), color, u_paper_visibility * paper);
-    
-    // Add simple lighting
-    // vec3 lightDir = normalize(lightPos - fragPos);
-    // float diffuseFactor = max(dot(normal, lightDir), 0.0);
-    // float lightIntensity = 0.6 + 0.4 * diffuseFactor;
-    
-    // Dark edges - the most characteristic watercolor feature
-    // color = mix(color, color * 0.3, edge);
-    color *= mix(.8, 1., texture(u_paper_texture, uv * 20.).r * .3);
-    
-    // Slightly darken concave areas (pigment pooling)
-    // float ao = pow((1.0 - diffuseFactor), 2.0) * 0.4;
-    // color = color * (1.0 - ao);
-    
-    // CRITICAL: Transparency variation - watercolors are never uniform in opacity
-    float opacity = u_transparency;
-    opacity = opacity * (1.0 - noise2 * 0.2);  // Varied transparency
-    opacity = mix(opacity, opacity * 1.5, edge); // More opaque at edges
-    opacity = clamp(opacity, 0.0, 1.0);
-    
-    // Final color with paper and light influence
-    vec3 finalColor = color;
-    if (edge > 0.3) finalColor = mix(finalColor, vec3(0.0), edge * 0.5);
-    
-    // Output with variable opacity
-    FragColor = vec4(finalColor, opacity);
+// Simple 1D ramp between four colors
+// vec3 ramp_col(float t) {
+//     t = clamp(t, 0.0, 1.0);
+//     if (t < 1.0/3.0) {
+//         return mix(u_color1, u_color2, t * 3.0);
+//     } else if (t < 2.0/3.0) {
+//         return mix(u_color2, u_color3, (t - 1.0/3.0) * 3.0);
+//     } else {
+//         return mix(u_color3, u_color4, (t - 2.0/3.0) * 3.0);
+//     }
+// }
+
+void main() {
+    // Standard lighting 
+    vec3 norm = normalize(Normal);
+    vec2 uv = TexCoords;
+    if (uv.x < 1e-3 && uv.y < 1e-3)
+        uv = FragPos.xz * 0.1;
+
+    float noise1 = texture(u_noise_texture, uv * 3.0).r;
+    float noise2 = texture(u_noise_texture, uv * 20.0).r;
+
+    // Base color or texture 
+    vec3 colBase = layer1colr(clamp(norm.y * 0.5 + 0.5 + (noise1 - 0.5) * 0.1, 0.0, 1.0));
+
+    // Paper + noise sampling 
+    float noise3 = texture(u_noise_texture, uv * 30.0).r;
+    colBase *= (1.0 - (u_granulation * 0.6) * noise3);
+    float paper = texture(u_paper_texture, uv * 5.0).r;
+    colBase = mix(vec3(paper), colBase, u_paper_visibility * 1.2);
+
+    // Highlight Dilution lighting for layer 1 
+    float diff = max(dot(norm, normalize(lightPos - FragPos)), 0.0);
+    vec3 diffuse = diff * lightColor;
+    colBase = mix(colBase, vec3(paper), u_dilute_strength * (1.0 - diff) * 1.2);
+    colBase *= (0.5 * lightColor + diff * lightColor * 0.5);
+
+    // layer 2 
+    float layer2mask = step(u_overlay_threshold, texture(u_noise_texture, uv * 0).r);
+    vec3 layer2colr = layer2colr(clamp(norm.y * 0.5 + 0.5 + (noise2 - 0.5) * 0.1, 0.0, 1.0));
+    layer2colr *= (1.0 - (u_granulation * 0.6) * noise3);
+    layer2colr = mix(vec3(paper), layer2colr, u_paper_visibility * 1.2);
+    vec3 finalCol = mix(colBase, layer2colr, layer2mask);
+
+    // Bleed 
+    float bleed_rand = texture(u_noise_texture, uv * 6.0).r;
+    finalCol *= mix(1.0, 1.0 - u_bleed_strength * (0.7 + 0.5 * bleed_rand), noise2);
+    float edgeInt = clamp(smoothstep(u_edge_width * 0.8, 0.0, length(dFdx(norm)) + length(dFdy(norm))) * u_edge_intensity, 0.0, 1.0);
+    finalCol = mix(finalCol, finalCol * (1.0 - u_edge_darkness * 0.7), edgeInt);
+
+    // Edge darkening 
+    float edgeSil = clamp(smoothstep(u_edge_width * 0.5, 0.0, abs(dot(norm, normalize(viewPos - FragPos)))) * u_edge_intensity, 0.0, 1.0);
+    finalCol = mix(finalCol, finalCol * (1.0 - u_edge_darkness * 0.7), edgeSil);
+
+    // Variable transparency 
+    finalCol = mix(finalCol, vec3(1.0), u_transparency * 0.3);
+    finalCol += vec3(0.03);
+
+    FragColor = vec4(finalCol, 1.0);
 }
