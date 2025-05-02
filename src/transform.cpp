@@ -13,10 +13,10 @@ Transform::Transform(glm::vec3 scale, glm::vec3 rotation, glm::vec3 position)
 glm::mat4 Transform::GetModelMatrix() {
     glm::mat4 model = glm::mat4(1.0f);
     
-    // Apply transformations in order: translate, rotate, scale
+    // Apply transformations 
     model = glm::translate(model, Position);
     
-    // Apply rotations around each axis
+    // Apply rotations 
     model = glm::rotate(model, glm::radians(Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -28,7 +28,6 @@ glm::mat4 Transform::GetModelMatrix() {
 }
 
 void Transform::ProcessMouseMovement(float xoffset, float yoffset) {
-    // Process based on current operation mode
     switch (CurrentOperation) {
         case SCALE_X:
         case SCALE_Y:
@@ -61,20 +60,11 @@ void Transform::Reset() {
     Position = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-void Transform::FitToSize(float maxDimension) {
-    // This method would typically use the model's bounding box
-    // For now, we'll just set a uniform scale
-    float maxScale = fmax(fmax(Scale.x, Scale.y), Scale.z);
-    float uniformScale = maxDimension / maxScale;
-    Scale = glm::vec3(uniformScale);
-}
 
 void Transform::ProcessScale(float xoffset, float yoffset) {
-    // Use the combination of xoffset and yoffset for a more intuitive feel
     float scaleChange = yoffset * ScaleSensitivity;
     float uniformScale;
     
-    // Apply scale based on the current operation
     switch (CurrentOperation) {
         case SCALE_X:
             Scale.x = fmax(0.01f, Scale.x + scaleChange);
@@ -93,14 +83,12 @@ void Transform::ProcessScale(float xoffset, float yoffset) {
             Scale *= uniformScale;
             break;
             
-        // Handle the remaining cases to avoid warning
         case ROTATE_X:
         case ROTATE_Y:
         case ROTATE_Z:
         case TRANSLATE_X:
         case TRANSLATE_Y:
         case TRANSLATE_Z:
-            // These operations don't apply to scaling
             break;
     }
 }
@@ -108,7 +96,6 @@ void Transform::ProcessScale(float xoffset, float yoffset) {
 void Transform::ProcessRotation(float xoffset, float yoffset) {
     float rotationChange = xoffset * RotationSensitivity;
     
-    // Apply rotation based on the current operation
     switch (CurrentOperation) {
         case ROTATE_X:
             Rotation.x += rotationChange;
@@ -122,7 +109,6 @@ void Transform::ProcessRotation(float xoffset, float yoffset) {
             Rotation.z += rotationChange;
             break;
             
-        // Handle the remaining cases to avoid warning
         case SCALE_X:
         case SCALE_Y:
         case SCALE_Z:
@@ -130,7 +116,6 @@ void Transform::ProcessRotation(float xoffset, float yoffset) {
         case TRANSLATE_X:
         case TRANSLATE_Y:
         case TRANSLATE_Z:
-            // These operations don't apply to rotation
             break;
     }
     
@@ -144,7 +129,6 @@ void Transform::ProcessTranslation(float xoffset, float yoffset) {
     float translationChange = xoffset * TranslationSensitivity;
     float verticalChange = yoffset * TranslationSensitivity;
     
-    // Apply translation based on the current operation
     switch (CurrentOperation) {
         case TRANSLATE_X:
             Position.x += translationChange;
@@ -158,7 +142,6 @@ void Transform::ProcessTranslation(float xoffset, float yoffset) {
             Position.z -= translationChange;
             break;
             
-        // Handle the remaining cases to avoid warning
         case SCALE_X:
         case SCALE_Y:
         case SCALE_Z:
@@ -166,7 +149,6 @@ void Transform::ProcessTranslation(float xoffset, float yoffset) {
         case ROTATE_X:
         case ROTATE_Y:
         case ROTATE_Z:
-            // These operations don't apply to translation
             break;
     }
 }

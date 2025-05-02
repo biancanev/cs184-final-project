@@ -91,14 +91,12 @@ void Camera::ProcessMouseScroll(float yoffset) {
     //     Zoom = 0.5f;
     // if (Zoom > 300.0f)
     //     Zoom = 300.0f;
-    float moveAmount = yoffset * 0.5f; // Adjust this multiplier to control sensitivity
+    float moveAmount = yoffset * 0.5f; 
     Position += Front * moveAmount;
     
-    // If using orbit camera, update orbit distance
     OrbitDistance = glm::length(Position - Target);
 }
 
-// check this code later
 void Camera::updateCameraVectors() {
     glm::vec3 front;
     front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
