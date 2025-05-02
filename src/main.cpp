@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// ImGui includes
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -18,12 +17,12 @@
 #include <string>
 namespace fs = std::filesystem;
 
-// Settings
+// Gui settings
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 const unsigned int SLIDER_WIDTH = 200;
 
-// Camera
+// Camera settings
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -15.0f);
 Transform modelTransform;
 float lastX = SCR_WIDTH / 2.0f;
@@ -93,7 +92,7 @@ Tool_Mode currentTool = CAMERA_PAN;
 
 bool SelectableButton(const char* label, bool isSelected) {
         if (isSelected) {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 1.0f, 1.0f)); // highlight
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 1.0f, 1.0f)); //highlighted when selected
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.7f, 1.0f, 1.0f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
         }
@@ -134,10 +133,8 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
                 // Check if CTRL key is held for panning
                 if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
                     glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS || currentTool == CAMERA_PAN) {
-                        // Pan the camera
                         camera.ProcessMousePan(xoffset, yoffset);
                 } else if (currentTool == CAMERA_ORBIT) {
-                        // Orbit the camera
                         camera.ProcessMouseMovementOrbit(xoffset, yoffset);
                 } else if (currentTool == CAMERA_ROTATE) {
                         camera.ProcessMouseMovementRotate(xoffset, yoffset);
@@ -228,7 +225,7 @@ void setupImGui(GLFWwindow* window) {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
 
-        // Setup Dear ImGui style
+        // Set style to dark
         ImGui::StyleColorsDark();
 
         // Setup Platform/Renderer backends
@@ -236,7 +233,7 @@ void setupImGui(GLFWwindow* window) {
         ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-// Function to load a 3D model
+// Load a 3D model
 bool loadModelFile(Model& model, const std::string& path) {
         try {
                 model = Model(path);
@@ -249,14 +246,14 @@ bool loadModelFile(Model& model, const std::string& path) {
         }
 }
 
-// Function to render ImGui interface
+// Render ImGui interface
 void renderImGui(Model& ourModel, GLFWwindow* window) {
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()!)
+        // 1. Show demo window (Most of the sample code is in ImGui::ShowDemoWindow()!)
         if (showDemoWindow)
                 ImGui::ShowDemoWindow(&showDemoWindow);
 
@@ -335,13 +332,17 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
 
                         if (ImGui::Button("Load Model")) {
                                 if (!modelPath.empty()) {
+                                        // Removes texture when placing models
                                         ourModel.meshes[0].textures.clear();
                                         textureLoaded = false;
                                         texturePath = "";
-                                        std::cout << "Texture removed from model" << std::endl;
                                         Texture newTexture;
                                         ourModel.replaceTextures({newTexture});
+
+
                                         modelLoaded = loadModelFile(ourModel, modelPath);
+
+                                        // Set color of model to whats set
                                         ourModel.replaceTextures({newTexture});
                                 }
                         }
@@ -395,7 +396,7 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
 
                         std::string textureDir = "../textures";
 
-                        // Scan the directory
+                        // Scan the directory for textures
                         try {
                                 if (fs::exists(textureDir) && fs::is_directory(textureDir)) {
                                         for (const auto& entry : fs::directory_iterator(textureDir)) {

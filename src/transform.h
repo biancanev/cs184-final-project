@@ -52,8 +52,6 @@ public:
     // Reset to default values
     void Reset();
     
-    // Apply a uniform scale to make the model a specific size
-    void FitToSize(float maxDimension);
 
 private:
     // Apply scale operation with mouse movement
