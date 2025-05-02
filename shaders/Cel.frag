@@ -43,8 +43,8 @@ void main() {
     spec = spec > 0.6 ? 1.0 : 0.0;
 
     // Rim lighting
-    float rimAmount = 0.6;
-    float rimThreshold = 0.3;
+    float rimAmount = 0.3;
+    float rimThreshold = 0.4;
     float rimDot = 1.0 - dot(viewDir, norm);
     float rim = smoothstep(rimThreshold - 0.01, rimThreshold + 0.01, rimDot);
     vec3 rimColor = rimAmount * rim * lightColor;
