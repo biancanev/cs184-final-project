@@ -92,7 +92,7 @@ Tool_Mode currentTool = CAMERA_PAN;
 
 bool SelectableButton(const char* label, bool isSelected) {
         if (isSelected) {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 1.0f, 1.0f)); //highlighted when selected
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 1.0f, 1.0f)); // highlighted when selected
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.7f, 1.0f, 1.0f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
         }
@@ -338,7 +338,6 @@ void renderImGui(Model& ourModel, GLFWwindow* window) {
                                         texturePath = "";
                                         Texture newTexture;
                                         ourModel.replaceTextures({newTexture});
-
 
                                         modelLoaded = loadModelFile(ourModel, modelPath);
 
